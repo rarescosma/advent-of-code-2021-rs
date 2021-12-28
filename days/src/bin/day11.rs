@@ -1,7 +1,6 @@
 use aoc_2dmap::{Adjacency, Map, Pos};
 use hashbrown::HashSet;
 use std::collections::VecDeque;
-
 use std::fmt::{Debug, Formatter};
 
 const MAX_ENERGY: u16 = 9;

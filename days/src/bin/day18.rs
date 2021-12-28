@@ -1,14 +1,10 @@
-extern crate pest;
-#[macro_use]
-extern crate pest_derive;
-
 use itertools::{max, Itertools};
+use pest::iterators::Pair;
+use pest::Parser;
+use pest_derive::Parser;
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, BitAnd};
 use std::str::FromStr;
-
-use crate::pest::Parser;
-use pest::iterators::Pair;
 
 #[derive(Parser)]
 #[grammar = "parsers/day18-snails.pest"]

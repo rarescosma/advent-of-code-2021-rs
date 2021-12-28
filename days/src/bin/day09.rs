@@ -1,13 +1,9 @@
 use aoc_2dmap::{Adjacency, Map, Pos};
 use hashbrown::HashSet;
 use pest::iterators::Pair;
-use std::collections::VecDeque;
-
-extern crate pest;
-#[macro_use]
-extern crate pest_derive;
-
 use pest::Parser;
+use pest_derive::Parser;
+use std::collections::VecDeque;
 
 #[derive(Parser)]
 #[grammar = "parsers/day09-depth.pest"]

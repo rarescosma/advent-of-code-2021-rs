@@ -1,7 +1,5 @@
 use hashbrown::HashSet;
-
-#[macro_use]
-extern crate lazy_static;
+use lazy_static::lazy_static;
 
 lazy_static! {
     static ref X_MIN: isize = 137;

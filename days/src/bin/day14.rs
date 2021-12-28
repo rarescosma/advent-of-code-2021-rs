@@ -1,9 +1,6 @@
-extern crate pest;
-#[macro_use]
-extern crate pest_derive;
-
 use hashbrown::HashMap;
 use pest::Parser;
+use pest_derive::Parser;
 use std::collections::BTreeMap;
 
 #[derive(Parser)]
