@@ -1,0 +1,5 @@
+WHITESPACE = _{" "}
+template = { (ASCII_ALPHA_UPPER)+ }
+tpl_sep = _{ (NEWLINE){2} }
+insertion = { (ASCII_ALPHA_UPPER){2} ~ "->" ~ (ASCII_ALPHA_UPPER){1} }
+lines = { SOI ~ template ~ tpl_sep ~ insertion  ~ (NEWLINE ~ insertion)* ~ NEWLINE? ~ EOI}

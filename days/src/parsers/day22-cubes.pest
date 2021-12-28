@@ -1,0 +1,7 @@
+WHITESPACE = _{ " " }
+number_class = _{ NUMBER | "-" }
+number = { (number_class)+ }
+cmd = { "on" | "off" }
+coord = @{ "x" | "y" | "z" }
+bounds = _{ number ~ ".." ~ number}
+cube = { cmd ~ (coord ~ "=" ~ bounds ~ ","?){3} }

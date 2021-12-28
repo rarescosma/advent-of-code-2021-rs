@@ -1,0 +1,7 @@
+WHITESPACE = _{" "}
+digit = @{ 'a'..'g' }
+digits = @{ digit+ }
+patterns = { digits{10} }
+outputs = { digits{4} }
+line = { patterns ~ "|" ~ outputs }
+lines = { SOI ~ line ~ (NEWLINE ~ line)* ~ NEWLINE? ~ EOI}

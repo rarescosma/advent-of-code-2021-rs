@@ -1,0 +1,5 @@
+WHITESPACE = _{ " " }
+number = @{ (ASCII_DIGIT)+ }
+point = _{number ~ "," ~ number}
+line = {point ~ "->" ~ point}
+lines = { SOI ~ line ~ (NEWLINE ~ line)* ~ NEWLINE? ~ EOI}

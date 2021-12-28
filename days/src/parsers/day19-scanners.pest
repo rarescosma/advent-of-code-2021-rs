@@ -1,0 +1,5 @@
+number_class = _{ NUMBER | "-" }
+number = { (number_class)+ }
+scanner = { "--- scanner " ~ number ~ " ---" }
+point = { number ~ "," ~ number ~ "," ~ number }
+line = _{ scanner | point }
