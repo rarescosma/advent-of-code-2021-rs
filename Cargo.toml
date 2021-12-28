@@ -1,5 +1,5 @@
 [workspace]
 members = ["aoc_2dmap", "days"]
 
-[profile.release]
-lto = true
+#[profile.release]
+#lto = true

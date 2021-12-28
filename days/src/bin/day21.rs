@@ -1,4 +1,3 @@
-use cached::proc_macro::cached;
 use hashbrown::HashMap;
 use std::cmp::max;
 
@@ -16,7 +15,7 @@ lazy_static! {
 
 const DIRAC_SCORE: u64 = 21;
 
-#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 struct Player {
     pos: u64,
     score: u64,
@@ -35,7 +34,7 @@ impl Player {
     }
 }
 
-#[derive(Clone, Hash, PartialEq, Eq)]
+#[derive(Clone, Copy, Hash, PartialEq, Eq)]
 struct State {
     p1: Player,
     p2: Player,
@@ -46,19 +45,21 @@ impl State {
         if p1_turn {
             State {
                 p1: self.p1.roll(roll),
-                p2: self.p2.clone(),
+                p2: self.p2,
             }
         } else {
             State {
-                p1: self.p1.clone(),
+                p1: self.p1,
                 p2: self.p2.roll(roll),
             }
         }
     }
 }
 
-#[cached]
-fn wins(state: State, p1_turn: bool) -> (u64, u64) {
+fn wins(state: State, p1_turn: bool, cache: &mut HashMap<(State, bool), (u64, u64)>) -> (u64, u64) {
+    if cache.contains_key(&(state, p1_turn)) {
+        return cache[&(state, p1_turn)];
+    }
     let (mut p1_tot, mut p2_tot) = (0, 0);
     for (roll, weight) in DIRAC.iter() {
         let new_state = state.roll(*roll, p1_turn);
@@ -67,11 +68,12 @@ fn wins(state: State, p1_turn: bool) -> (u64, u64) {
         } else if !p1_turn && new_state.p2.score >= DIRAC_SCORE {
             p2_tot += weight;
         } else {
-            let (p1_wins, p2_wins) = wins(new_state, !p1_turn);
+            let (p1_wins, p2_wins) = wins(new_state, !p1_turn, cache);
             p1_tot += weight * p1_wins;
             p2_tot += weight * p2_wins;
         }
     }
+    cache.insert((state, p1_turn), (p1_tot, p2_tot));
     (p1_tot, p2_tot)
 }
 
@@ -81,7 +83,7 @@ aoc2021::main! {
         p2: Player { pos: 5, score: 0 },
     };
 
-    let num_wins = wins(s, true);
+    let num_wins = wins(s, true, &mut HashMap::new());
 
     (0, max(num_wins.0, num_wins.1))
 }
