@@ -1,0 +1,4 @@
+WHITESPACE = _{ " " }
+number = { DECIMAL_NUMBER+ }
+term = _{ number | expr }
+expr = { "[" ~ term ~ "," ~ term ~ "]" }

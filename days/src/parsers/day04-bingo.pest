@@ -1,0 +1,8 @@
+WHITESPACE = _{ " " }
+number = @{ (ASCII_DIGIT)+ }
+bingo_line = { number ~ number* }
+bingo_table = { bingo_line ~ (NEWLINE ~ bingo_line)* }
+table_sep = _{ NEWLINE{2} }
+bingo = { SOI ~ bingo_table ~ (table_sep ~ bingo_table)* ~ EOI }
+
+draws = { number ~ ("," ~ number)* }

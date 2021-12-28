@@ -1,0 +1,8 @@
+number = _{ (ASCII_DIGIT)+ }
+point = {number ~ "," ~ number}
+fold_sep = _{ NEWLINE{2} }
+xfold = _{ "x=" ~ number}
+yfold = _{ "y=" ~ number}
+fold = { xfold | yfold }
+fold_ = _{ "fold along " ~ fold }
+lines = { SOI ~ point ~ (NEWLINE ~ point)* ~ fold_sep ~ fold_ ~ (NEWLINE ~ fold_)* ~ NEWLINE? ~ EOI}

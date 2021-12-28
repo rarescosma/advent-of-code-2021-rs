@@ -1,0 +1,9 @@
+[package]
+name = "aoc_2dmap"
+version = "0.1.0"
+edition = "2021"
+authors = ["Rareș Cosma <rares@getbetter.ro>"]
+
+[dependencies]
+itertools = "0.10.3"
+num = "0.4.0"
