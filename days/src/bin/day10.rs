@@ -1,9 +1,7 @@
 use hashbrown::{HashMap, HashSet};
+use lazy_static::lazy_static;
 use num::PrimInt;
-use std::collections::LinkedList;
-
-#[macro_use]
-extern crate lazy_static;
+use std::collections::VecDeque;
 
 struct Pair(char, char, u32, u16);
 
@@ -34,7 +32,7 @@ fn read_input() -> Vec<&'static str> {
 }
 
 fn process_line<S: AsRef<str>>(line: S) -> LineType {
-    let mut stack = LinkedList::<char>::new();
+    let mut stack = VecDeque::new();
     for c in line.as_ref().chars() {
         if is_opening(&c) {
             stack.push_back(c);

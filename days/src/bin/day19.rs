@@ -1,20 +1,15 @@
-// #![feature(map_first_last)]
-extern crate pest;
-#[macro_use]
-extern crate pest_derive;
-
-use crate::pest::Parser;
+use hashbrown::HashMap;
+use itertools::{iproduct, Itertools};
+use pest::Parser;
+use pest_derive::Parser;
 use std::cmp::max;
 use std::collections::{BTreeMap, BTreeSet};
+use std::fmt::Debug;
+use std::ops::{Add, Sub};
 
 #[derive(Parser)]
 #[grammar = "parsers/day19-scanners.pest"]
 pub struct ScannerParser;
-
-use hashbrown::HashMap;
-use itertools::{iproduct, Itertools};
-use std::fmt::Debug;
-use std::ops::{Add, Sub};
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct Point {

@@ -1,6 +1,9 @@
 use regex::Regex;
 use std::process::Command;
 
+extern crate pest;
+extern crate pest_derive;
+
 #[macro_use]
 extern crate lazy_static;
 

@@ -1,9 +1,6 @@
-extern crate pest;
-#[macro_use]
-extern crate pest_derive;
-
 use pest::iterators::Pair;
 use pest::Parser;
+use pest_derive::Parser;
 
 #[derive(Parser)]
 #[grammar = "parsers/day04-bingo.pest"]
