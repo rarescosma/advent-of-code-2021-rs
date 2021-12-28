@@ -201,6 +201,21 @@ impl<P: Into<Point>, Q: Into<Point>> From<(P, Q)> for Cube {
     }
 }
 
+fn process_cubes<F: Fn(Cube) -> bool>(cubes: Vec<(Cube, String)>, accept: F) -> usize {
+    let mut proc = HashSet::new();
+    for (cube, cmd) in cubes.into_iter().filter(|(c, _)| accept(*c)) {
+        if proc.is_empty() && cmd == "on" {
+            proc.insert(cube);
+        } else {
+            proc = proc
+                .into_iter()
+                .flat_map(|x| if cmd == "on" { x + cube } else { x - cube })
+                .collect();
+        }
+    }
+    volume(proc)
+}
+
 aoc2021::main! {
     let cubes: Vec<_> = include_str!("../../inputs/day22.txt")
         .lines()
@@ -209,37 +224,10 @@ aoc2021::main! {
 
     // Part 1
     let world: Cube = ([-50, -50, -50], [50, 50, 50]).into();
-
-    let mut proc = HashSet::new();
-    for (cube, cmd) in cubes
-        .to_owned()
-        .into_iter()
-        .filter(|(c, _)| c.intersects(&world))
-    {
-        if proc.is_empty() && cmd == "on" {
-            proc.insert(cube);
-        } else {
-            proc = proc
-                .into_iter()
-                .flat_map(|x| if cmd == "on" { x + cube } else { x - cube })
-                .collect();
-        }
-    }
-    let p1 = volume(proc);
+    let p1 = process_cubes(cubes.to_owned(), |cube| cube.intersects(&world));
 
     // Part 2
-    let mut proc = HashSet::new();
-    for (cube, cmd) in cubes.to_owned().into_iter() {
-        if proc.is_empty() && cmd == "on" {
-            proc.insert(cube);
-        } else {
-            proc = proc
-                .into_iter()
-                .flat_map(|x| if cmd == "on" { x + cube } else { x - cube })
-                .collect();
-        }
-    }
-    let p2 = volume(proc);
+    let p2 = process_cubes(cubes, |_| true);
 
     (p1, p2)
 }

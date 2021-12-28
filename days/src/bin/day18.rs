@@ -1,3 +1,5 @@
+#![allow(clippy::suspicious_arithmetic_impl)]
+
 use itertools::{max, Itertools};
 use pest::iterators::Pair;
 use pest::Parser;
@@ -101,20 +103,20 @@ impl Node<isize> {
 const EXPLODE_DEPTH: usize = 4;
 impl BTree<Node<isize>> {
     fn explode(&mut self) -> bool {
-        let mut ordering = self.topo_ordering();
+        let mut nodes = self.topo_ordering();
 
-        for i in 0..(ordering.len() - 1) {
-            let p = ordering[i].val;
-            let n = ordering[i + 1].val;
-            if ordering[i + 1].depth > EXPLODE_DEPTH && ordering[i].depth == ordering[i + 1].depth {
+        for i in 0..(nodes.len() - 1) {
+            let p = nodes[i].val;
+            let n = nodes[i + 1].val;
+            if nodes[i + 1].depth > EXPLODE_DEPTH && nodes[i].depth == nodes[i + 1].depth {
                 if i > 0 {
-                    ordering[i - 1].val += p;
+                    nodes[i - 1].val += p;
                 }
-                if i + 2 < ordering.len() {
-                    ordering[i + 2].val += n;
+                if i + 2 < nodes.len() {
+                    nodes[i + 2].val += n;
                 }
-                ordering[i].val = TOMBSTONE;
-                ordering[i + 1].val = TOMBSTONE;
+                nodes[i].val = TOMBSTONE;
+                nodes[i + 1].val = TOMBSTONE;
 
                 self.compact();
                 return true;
@@ -124,12 +126,10 @@ impl BTree<Node<isize>> {
     }
 
     fn split(&mut self) -> bool {
-        let mut ordering = self.topo_ordering();
-
-        for i in 0..ordering.len() {
-            let val = ordering[i].val;
+        for node in self.topo_ordering() {
+            let val = node.val;
             if val >= 10 {
-                ordering[i].val = -val;
+                node.val = -val;
                 self.compact();
                 return true;
             }

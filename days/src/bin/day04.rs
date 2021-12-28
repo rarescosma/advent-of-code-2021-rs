@@ -57,9 +57,9 @@ impl Table {
         let width = lines[0].len();
 
         let mut cols = vec![Vec::<usize>::with_capacity(height); width];
-        for line_no in 0..height {
-            for col_no in 0..width {
-                cols[col_no].push(lines[line_no][col_no]);
+        for line in lines.iter() {
+            for (col_no, col) in cols.iter_mut().enumerate() {
+                col.push(line[col_no]);
             }
         }
         Self { lines, cols }
