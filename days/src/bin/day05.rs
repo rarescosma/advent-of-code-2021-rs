@@ -1,4 +1,5 @@
-use num::{range_inclusive, PrimInt, Signed};
+use num_iter::range_inclusive;
+use num_traits::{PrimInt, Signed};
 use pest::Parser;
 use pest_derive::Parser;
 use std::fmt::Debug;

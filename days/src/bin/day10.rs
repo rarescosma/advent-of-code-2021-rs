@@ -1,6 +1,6 @@
 use hashbrown::{HashMap, HashSet};
 use lazy_static::lazy_static;
-use num::PrimInt;
+use num_traits::PrimInt;
 use std::collections::VecDeque;
 
 struct Pair(char, char, u32, u16);
