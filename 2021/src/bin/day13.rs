@@ -12,21 +12,6 @@ struct FoldingMap<T>(Map<T>)
 where
     T: Copy + Display;
 
-#[derive(Copy, Clone, Debug)]
-enum Axis {
-    X,
-    Y,
-}
-
-impl Axis {
-    fn map(&self, x: i32, y: i32) -> Pos {
-        match self {
-            Axis::X => Pos { x, y },
-            Axis::Y => Pos { x: y, y: x },
-        }
-    }
-}
-
 #[derive(Debug)]
 struct Fold {
     axis: Axis,
