@@ -48,9 +48,9 @@ impl EnhanceMap<char> {
         for pos in self.iter() {
             let mut algo_idx = 0_usize;
             for neigh in pos
-                .neighbors(Adjacency::DiagonalInc)
-                .iter()
-                .map(|x| self.get(*x).unwrap_or(pad_char))
+                .neighbors_diag_inclusive()
+                .into_iter()
+                .map(|x| self.get(x).unwrap_or(pad_char))
             {
                 algo_idx <<= 1;
                 algo_idx += (neigh == LIGHT) as usize
