@@ -88,3 +88,20 @@ impl Pos {
     }
 }
 
+#[derive(Copy, Clone, Debug)]
+pub enum Axis {
+    X,
+    Y,
+}
+
+impl Axis {
+    pub fn map<U>(&self, x: U, y: U) -> Pos
+    where
+        U: PrimInt,
+    {
+        match self {
+            Axis::X => (x, y).into(),
+            Axis::Y => (y, x).into(),
+        }
+    }
+}
