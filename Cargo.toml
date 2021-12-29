@@ -1,5 +1,6 @@
 [workspace]
-members = ["aoc_2dmap", "days"]
-
-#[profile.release]
-#lto = true
+members = [
+    "crates/aoc_2dmap",
+    "crates/aoc_prelude",
+    "2021",
+]
