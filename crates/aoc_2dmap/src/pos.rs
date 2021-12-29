@@ -1,12 +1,24 @@
+use arrayvec::ArrayVec;
 use std::ops::Add;
 
-use itertools::iproduct;
 use num_traits::PrimInt;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Pos {
     pub x: i32,
     pub y: i32,
+}
+
+impl Pos {
+    fn new(x: i32, y: i32) -> Pos {
+        Pos { x, y }
+    }
+}
+
+impl Default for Pos {
+    fn default() -> Self {
+        Self { x: 0, y: 0 }
+    }
 }
 
 impl<U> From<(U, U)> for Pos
@@ -32,23 +44,47 @@ impl Add for Pos {
     }
 }
 
-pub enum Adjacency {
-    Simple,
-    Diagonal,
-    DiagonalInc,
-}
-
 impl Pos {
-    pub fn neighbors(self, adjacency: Adjacency) -> Vec<Pos> {
-        match adjacency {
-            Adjacency::Simple => vec![(1, 0), (-1, 0), (0, 1), (0, -1)],
-            Adjacency::Diagonal => iproduct!(-1..=1, -1..=1)
-                .filter(|&(x, y)| x != 0 || y != 0)
-                .collect(),
-            Adjacency::DiagonalInc => iproduct!(-1..=1, -1..=1).collect(),
-        }
+    pub fn neighbors_simple(self) -> ArrayVec<Pos, 4> {
+        [
+            Pos::new(self.x + 1, self.y),
+            Pos::new(self.x - 1, self.y),
+            Pos::new(self.x, self.y + 1),
+            Pos::new(self.x, self.y - 1),
+        ]
         .into_iter()
-        .map(|(dy, dx)| self + Pos { x: dx, y: dy })
+        .collect()
+    }
+
+    pub fn neighbors_diag(self) -> ArrayVec<Pos, 8> {
+        [
+            Pos::new(self.x + 1, self.y),
+            Pos::new(self.x - 1, self.y),
+            Pos::new(self.x, self.y + 1),
+            Pos::new(self.x, self.y - 1),
+            Pos::new(self.x + 1, self.y + 1),
+            Pos::new(self.x + 1, self.y - 1),
+            Pos::new(self.x - 1, self.y + 1),
+            Pos::new(self.x - 1, self.y - 1),
+        ]
+        .into_iter()
+        .collect()
+    }
+
+    pub fn neighbors_diag_inclusive(self) -> ArrayVec<Pos, 9> {
+        [
+            Pos::new(self.x + 1, self.y),
+            Pos::new(self.x - 1, self.y),
+            Pos::new(self.x, self.y + 1),
+            Pos::new(self.x, self.y - 1),
+            Pos::new(self.x + 1, self.y + 1),
+            Pos::new(self.x + 1, self.y - 1),
+            Pos::new(self.x - 1, self.y + 1),
+            Pos::new(self.x - 1, self.y - 1),
+            self,
+        ]
+        .into_iter()
         .collect()
     }
 }
+

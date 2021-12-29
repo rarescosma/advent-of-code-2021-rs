@@ -24,7 +24,7 @@ impl DepthMap {
 
     fn flows<F: Fn(u8) -> bool>(&self, pos: Pos, pred: F) -> Vec<(Pos, bool)> {
         let depth = self.depth_of(pos);
-        pos.neighbors(Adjacency::Simple)
+        pos.neighbors_simple()
             .into_iter()
             .flat_map(move |pos| {
                 self.0

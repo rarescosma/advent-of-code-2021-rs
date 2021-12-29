@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Formatter};
 
-use aoc_2dmap::prelude::{Adjacency, Map, Pos};
+use aoc_2dmap::prelude::{Map, Pos};
 use aoc_prelude::prelude::*;
 
 const MAX_ENERGY: u16 = 9;
@@ -85,7 +85,7 @@ impl OctoMap {
         let mut cascade = Vec::new();
 
         // increase energy of all neighboring tiles
-        for n_pos in pos.neighbors(Adjacency::Diagonal) {
+        for n_pos in pos.neighbors_diag() {
             if let Some(neighbor) = self.0.get(n_pos) {
                 let neighbor = neighbor.increment();
                 self.0.set(n_pos, neighbor);
