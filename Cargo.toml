@@ -4,3 +4,6 @@ members = [
     "crates/aoc_prelude",
     "2021",
 ]
+
+[profile.release]
+lto = true
