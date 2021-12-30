@@ -185,17 +185,8 @@ fn visible(m: &State, start_pos: Pos) -> ArrayVec<(Pos, usize), 64> {
     let mut q = VecDeque::new();
     q.push_back((start_pos, 0));
 
-    fn neighs(p: Pos) -> [Pos; 4] {
-        [
-            (p.x + 1, p.y).into(),
-            (p.x - 1, p.y).into(),
-            (p.x, p.y + 1).into(),
-            (p.x, p.y - 1).into(),
-        ]
-    }
-
     while let Some((pos, steps)) = q.pop_back() {
-        for neigh in neighs(pos) {
+        for neigh in pos.neighbors_simple() {
             if neigh.is_empty(m) && !seen.contains(&neigh) {
                 vis.push((neigh, steps + 1));
                 q.push_back((neigh, steps + 1));
