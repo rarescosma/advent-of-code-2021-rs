@@ -45,7 +45,7 @@ impl<T> BTree<T> {
     }
 
     fn topo_ordering(&mut self) -> Vec<&mut T> {
-        let mut nodes: Vec<_> = Vec::new();
+        let mut nodes: Vec<_> = Vec::with_capacity(128);
 
         match self {
             Self::Leaf(t) => nodes.push(t),
@@ -221,7 +221,7 @@ where
             BTree::Leaf(node)
         }
         Rule::expr => {
-            let nodes: Vec<_> = pair.into_inner().collect();
+            let nodes: ArrayVec<_, 2> = pair.into_inner().collect();
             process_pair(nodes[0].to_owned(), depth + 1)
                 & process_pair(nodes[1].to_owned(), depth + 1)
         }

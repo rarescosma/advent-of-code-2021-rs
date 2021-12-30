@@ -21,7 +21,7 @@ impl Cube {
         self.contains(&common) || other.contains(&common)
     }
 
-    fn planes(&self) -> Vec<Vec<Plane>> {
+    fn planes(&self) -> impl Iterator<Item = ArrayVec<Plane, 3>> {
         iproduct!(
             PLANE_COMBOS.iter(),
             iproduct!([self.o, self.l], [self.o, self.l], [self.o, self.l])
@@ -32,7 +32,6 @@ impl Cube {
                 .map(|(&dim, point)| point.as_plane(dim))
                 .collect()
         })
-        .collect()
     }
 
     fn subtract_from(&self, bigger: &Cube) -> HashSet<Cube> {
@@ -42,13 +41,13 @@ impl Cube {
         // we're subtracting from
         let common = self & bigger;
 
-        bigger.planes().iter().for_each(|planes| {
+        bigger.planes().into_iter().for_each(|planes| {
             // we get a sequence of 3 different planes here
             // do moves in turn and record all partial results along
             // with the result of the final translation
             let mut _common = common;
             for plane in planes {
-                if let Some(next) = _common.project_to(*plane) {
+                if let Some(next) = _common.project_to(plane) {
                     neighs.insert(next);
                     _common = next;
                 }
