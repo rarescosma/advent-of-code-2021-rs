@@ -2,7 +2,7 @@ use std::hash::Hash;
 use std::ops::{Add, Deref};
 
 use aoc_2dmap::prelude::*;
-use aoc_dijsktra::{GameState, Transform};
+use aoc_dijsktra::{Dijsktra, GameState, Transform};
 use aoc_prelude::*;
 
 #[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Clone)]
@@ -16,19 +16,21 @@ struct Move {
     cost: usize,
 }
 
-impl GameState<ArrayVec<Move, 4>, ExtendingMap> for State {
+impl GameState<ExtendingMap> for State {
+    type Steps = ArrayVec<Move, 4>;
+
     fn accept(&self) -> bool {
         self.pos == self.goal
     }
 
-    fn steps(&self, map: &ExtendingMap) -> ArrayVec<Move, 4> {
+    fn steps(&self, context: &ExtendingMap) -> Self::Steps {
         self.pos
             .neighbors_simple()
             .into_iter()
             .flat_map(|n_pos| {
                 Some(Move {
                     to: n_pos,
-                    cost: map.get(n_pos)?,
+                    cost: context.get(n_pos)?,
                 })
             })
             .collect()

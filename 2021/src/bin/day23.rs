@@ -1,8 +1,7 @@
 use std::hash::Hash;
-use std::ops::{Deref, DerefMut};
 
 use aoc_2dmap::prelude::*;
-use aoc_dijsktra::{GameState, Transform};
+use aoc_dijsktra::{Dijsktra, GameState, Transform};
 use aoc_prelude::*;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Copy, Clone)]
@@ -21,26 +20,13 @@ impl Tile {
     }
 }
 
-#[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Clone)]
-struct State(Map<Tile>);
+type State = Map<Tile>;
 
 struct PodContext;
 
-impl Deref for State {
-    type Target = Map<Tile>;
+impl GameState<PodContext> for State {
+    type Steps = ArrayVec<Move, 64>;
 
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for State {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-impl GameState<ArrayVec<Move, 64>, PodContext> for State {
     /// true if PodMap is in solved state
     fn accept(&self) -> bool {
         (0..=3).all(|idx| {
@@ -205,7 +191,7 @@ fn solve(input: Vec<&str>) -> usize {
 
     let map = Map::<Tile>::new((11, input.len() - 1).into(), tiles);
 
-    State(map).dijsktra(&PodContext).unwrap()
+    map.dijsktra(&PodContext).unwrap()
 }
 
 impl From<u8> for Tile {
