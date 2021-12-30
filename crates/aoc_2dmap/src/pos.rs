@@ -1,4 +1,4 @@
-use arrayvec::ArrayVec;
+use std::iter::once;
 use std::ops::Add;
 
 use num_traits::PrimInt;
@@ -39,7 +39,7 @@ impl Add for Pos {
 }
 
 impl Pos {
-    pub fn neighbors_simple(self) -> ArrayVec<Pos, 4> {
+    pub fn neighbors_simple(self) -> impl Iterator<Item = Pos> {
         [
             Pos::new(self.x + 1, self.y),
             Pos::new(self.x - 1, self.y),
@@ -47,38 +47,19 @@ impl Pos {
             Pos::new(self.x, self.y - 1),
         ]
         .into_iter()
-        .collect()
     }
 
-    pub fn neighbors_diag(self) -> ArrayVec<Pos, 8> {
-        [
-            Pos::new(self.x + 1, self.y),
-            Pos::new(self.x - 1, self.y),
-            Pos::new(self.x, self.y + 1),
-            Pos::new(self.x, self.y - 1),
+    pub fn neighbors_diag(self) -> impl Iterator<Item = Pos> {
+        self.neighbors_simple().chain([
             Pos::new(self.x + 1, self.y + 1),
             Pos::new(self.x + 1, self.y - 1),
             Pos::new(self.x - 1, self.y + 1),
             Pos::new(self.x - 1, self.y - 1),
-        ]
-        .into_iter()
-        .collect()
+        ])
     }
 
-    pub fn neighbors_diag_inclusive(self) -> ArrayVec<Pos, 9> {
-        [
-            Pos::new(self.x + 1, self.y),
-            Pos::new(self.x - 1, self.y),
-            Pos::new(self.x, self.y + 1),
-            Pos::new(self.x, self.y - 1),
-            Pos::new(self.x + 1, self.y + 1),
-            Pos::new(self.x + 1, self.y - 1),
-            Pos::new(self.x - 1, self.y + 1),
-            Pos::new(self.x - 1, self.y - 1),
-            self,
-        ]
-        .into_iter()
-        .collect()
+    pub fn neighbors_diag_inclusive(self) -> impl Iterator<Item = Pos> {
+        self.neighbors_diag().chain(once(self))
     }
 }
 
