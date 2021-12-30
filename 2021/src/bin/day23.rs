@@ -2,7 +2,7 @@ use std::hash::Hash;
 use std::ops::{Deref, DerefMut};
 
 use aoc_2dmap::prelude::*;
-use aoc_dijsktra::{dijsktra, GameState, Transform};
+use aoc_dijsktra::{GameState, Transform};
 use aoc_prelude::*;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Copy, Clone)]
@@ -205,7 +205,7 @@ fn solve(input: Vec<&str>) -> usize {
 
     let map = Map::<Tile>::new((11, input.len() - 1).into(), tiles);
 
-    dijsktra(State(map), &PodContext).unwrap()
+    State(map).dijsktra(&PodContext).unwrap()
 }
 
 impl From<u8> for Tile {
