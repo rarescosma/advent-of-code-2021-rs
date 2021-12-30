@@ -13,8 +13,7 @@ fn extract_time(s: &str) -> u32 {
 }
 
 fn main() {
-    let solution_range = (1..12).chain(13..=25);
-    let total_time = solution_range
+    let total_time = (1..=25)
         .map(|day_num| {
             let cmd = Command::new("cargo")
                 .args(&["run", "--release", "--bin", &format!("day{:0>2}", day_num)])
