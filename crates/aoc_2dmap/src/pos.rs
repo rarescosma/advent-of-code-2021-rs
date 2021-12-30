@@ -3,7 +3,7 @@ use std::ops::Add;
 
 use num_traits::PrimInt;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Pos {
     pub x: i32,
     pub y: i32,
@@ -12,12 +12,6 @@ pub struct Pos {
 impl Pos {
     fn new(x: i32, y: i32) -> Pos {
         Pos { x, y }
-    }
-}
-
-impl Default for Pos {
-    fn default() -> Self {
-        Self { x: 0, y: 0 }
     }
 }
 
