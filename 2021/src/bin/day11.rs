@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Formatter};
 
-use aoc_2dmap::prelude::{Map, Pos};
+use aoc_2dmap::prelude::*;
 use aoc_prelude::*;
 
 const MAX_ENERGY: u16 = 9;
