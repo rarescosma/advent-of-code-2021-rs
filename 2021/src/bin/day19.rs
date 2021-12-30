@@ -8,12 +8,18 @@ use aoc_prelude::*;
 #[grammar = "parsers/day19-scanners.pest"]
 pub struct ScannerParser;
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Eq, PartialOrd, Ord)]
 struct Point {
     x: i16,
     y: i16,
     z: i16,
     origin: bool,
+}
+
+impl PartialEq for Point {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y && self.z == other.z
+    }
 }
 
 impl Hash for Point {
