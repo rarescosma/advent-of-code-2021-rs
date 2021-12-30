@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use std::hash::{Hash, Hasher};
 use std::ops::{Add, Sub};
 
 use aoc_prelude::*;
@@ -7,12 +8,20 @@ use aoc_prelude::*;
 #[grammar = "parsers/day19-scanners.pest"]
 pub struct ScannerParser;
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
 struct Point {
-    x: isize,
-    y: isize,
-    z: isize,
+    x: i16,
+    y: i16,
+    z: i16,
     origin: bool,
+}
+
+impl Hash for Point {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        state.write_i16(self.x);
+        state.write_i16(self.y);
+        state.write_i16(self.z);
+    }
 }
 
 impl Sub for Point {
@@ -33,44 +42,36 @@ impl Add for Point {
     }
 }
 
-impl<I> From<I> for Point
-where
-    I: IntoIterator<Item = isize>,
-{
-    fn from(i: I) -> Self {
-        let vec = i.into_iter().collect::<Vec<isize>>();
-        Self::new(vec[0], vec[1], vec[2], false)
+impl From<ArrayVec<i16, 3>> for Point {
+    fn from(v: ArrayVec<i16, 3>) -> Self {
+        Self::new(v[0], v[1], v[2], false)
+    }
+}
+
+impl From<([i16; 3], bool)> for Point {
+    fn from((s, o): ([i16; 3], bool)) -> Self {
+        Self::new(s[0], s[1], s[2], o)
     }
 }
 
 impl Point {
-    fn new(x: isize, y: isize, z: isize, origin: bool) -> Self {
+    fn new(x: i16, y: i16, z: i16, origin: bool) -> Self {
         Self { x, y, z, origin }
     }
 
     fn permute(&self, permute: &Permute) -> Point {
-        let point = self
-            .rotate(permute.first_rota, false)
-            .rotate(permute.second_rota, false);
-        Point {
-            origin: self.origin,
-            ..point
-        }
+        self.rotate(permute.first_rota).rotate(permute.second_rota)
     }
 
-    fn rotate(&self, rota: [isize; 3], counter: bool) -> Point {
-        let pos: [isize; 3] = [self.x, self.y, self.z];
-        let mut new_pos: [isize; 3] = [0, 0, 0];
+    fn rotate(&self, rota: [i16; 3]) -> Point {
+        let pos: [i16; 3] = [self.x, self.y, self.z];
+        let mut new_pos: [i16; 3] = [0, 0, 0];
         for (old_idx, r) in rota.iter().enumerate() {
             let signum = r.signum();
             let idx = (r.abs() - 1) as usize;
-            if counter {
-                new_pos[idx] = pos[old_idx] * signum;
-            } else {
-                new_pos[old_idx] = pos[idx] * signum;
-            }
+            new_pos[old_idx] = pos[idx] * signum;
         }
-        new_pos.into()
+        (new_pos, self.origin).into()
     }
 }
 
@@ -79,23 +80,30 @@ struct Scanner {
     points: Vec<Point>,
 }
 
+type DiffFreq = HashMap<Point, usize>;
+
 impl Scanner {
     fn permute(&self, permute: &Permute) -> Scanner {
         let points: Vec<_> = self.points.iter().map(|p| p.permute(permute)).collect();
         Scanner { points }
     }
 
-    fn max_permute(&self, other: &Scanner, permutes: Vec<Permute>) -> Option<(Permute, Point)> {
+    fn find_permute(
+        &self,
+        other: &Scanner,
+        permutes: Vec<Permute>,
+        diff_freq: &mut DiffFreq,
+    ) -> Option<(Permute, Point)> {
         for (idx, permute) in permutes.iter().enumerate() {
-            if let Some(offset) = self.get_offset(other.permute(permute)) {
+            diff_freq.clear();
+            if let Some(offset) = self.find_offset(other.permute(permute), diff_freq) {
                 return Some((permutes[idx], offset));
             }
         }
         None
     }
 
-    fn get_offset(&self, other: Scanner) -> Option<Point> {
-        let mut diff_freq = HashMap::<Point, usize>::new();
+    fn find_offset(&self, other: Scanner, diff_freq: &mut DiffFreq) -> Option<Point> {
         for x in iproduct!(&self.points, other.points).map(|(x, y)| *x - y) {
             let new_freq = diff_freq.entry(x).or_insert(0);
             *new_freq += 1;
@@ -109,8 +117,8 @@ impl Scanner {
 
 #[derive(Debug, Copy, Clone)]
 struct Permute {
-    first_rota: [isize; 3],
-    second_rota: [isize; 3],
+    first_rota: [i16; 3],
+    second_rota: [i16; 3],
 }
 
 fn manhattan(p: Point, q: Point) -> usize {
@@ -118,11 +126,17 @@ fn manhattan(p: Point, q: Point) -> usize {
     (m.x.abs() + m.y.abs() + m.z.abs()) as usize
 }
 
-fn collapse(scanners: &mut BTreeMap<usize, Scanner>, permutes: &[Permute]) {
-    let mut tree: Vec<_> = Vec::new();
+fn collapse(
+    scanners: &mut BTreeMap<usize, Scanner>,
+    permutes: &[Permute],
+    diff_freq: &mut DiffFreq,
+) {
+    let mut tree: Vec<_> = Vec::with_capacity(32);
 
     for (k0, k1) in scanners.keys().rev().tuple_combinations() {
-        if let Some((permute, offset)) = scanners[k0].max_permute(&scanners[k1], permutes.into()) {
+        if let Some((permute, offset)) =
+            scanners[k0].find_permute(&scanners[k1], permutes.into(), diff_freq)
+        {
             tree.push((*k0, *k1, permute, offset));
         }
     }
@@ -182,9 +196,9 @@ fn scanners() -> BTreeMap<usize, Scanner> {
                     i += 1;
                 }
                 Rule::point => {
-                    let point: Vec<isize> = parse_result
+                    let point: ArrayVec<i16, 3> = parse_result
                         .into_inner()
-                        .flat_map(|x| x.as_str().parse::<isize>())
+                        .flat_map(|x| x.as_str().parse::<i16>())
                         .collect();
                     scan_points.push((i, point.into()));
                 }
@@ -210,12 +224,13 @@ fn scanners() -> BTreeMap<usize, Scanner> {
 aoc_2021::main! {
     let permutes = permutes();
     let mut scanners = scanners();
+    let mut diff_freq = DiffFreq::with_capacity(2^12);
 
     // this is brutal, we totally don't need to do multiple collapses
     // since we'd have found all possible offset points from the
     // first pass
     while scanners.len() > 1 {
-        collapse(&mut scanners, &permutes);
+        collapse(&mut scanners, &permutes, &mut diff_freq);
     }
 
     let total = total_points(&scanners);

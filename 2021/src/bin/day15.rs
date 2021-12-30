@@ -23,7 +23,7 @@ impl GameState<ExtendingMap> for State {
         self.pos == self.goal
     }
 
-    fn steps(&self, context: &ExtendingMap) -> Self::Steps {
+    fn steps(&self, context: &mut ExtendingMap) -> Self::Steps {
         self.pos
             .neighbors_simple()
             .into_iter()
@@ -123,7 +123,7 @@ fn inc_tile(t: usize) -> usize {
     }
 }
 
-fn solve(map: &ExtendingMap) -> usize {
+fn solve(map: &mut ExtendingMap) -> usize {
     State {
         pos: Pos::default(),
         goal: (map.size + (-1, -1).into()),
@@ -144,17 +144,17 @@ aoc_2021::main! {
         })
         .collect();
 
-    let map = ExtendingMap(Map::<usize>::new(
+    let mut map = ExtendingMap(Map::<usize>::new(
         Pos {
             x: lines[0].len() as i32,
             y: lines.len() as i32,
         },
         tiles,
     ));
-    let p1 = solve(&map);
+    let p1 = solve(&mut map);
 
-    let large_map = map.tile(Axis::X, 5, inc_tile).tile(Axis::Y, 5, inc_tile);
-    let p2 = solve(&large_map);
+    let mut large_map = map.tile(Axis::X, 5, inc_tile).tile(Axis::Y, 5, inc_tile);
+    let p2 = solve(&mut large_map);
 
     (p1, p2)
 }

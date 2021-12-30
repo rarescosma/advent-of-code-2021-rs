@@ -21,11 +21,11 @@ pub trait GameState<C>: Ord + Hash {
 
     fn accept(&self) -> bool;
 
-    fn steps(&self, context: &C) -> Self::Steps;
+    fn steps(&self, ctx: &mut C) -> Self::Steps;
 }
 
 pub trait Dijsktra<C>: private::Sealed<C> {
-    fn dijsktra(self, context: &C) -> Option<usize>;
+    fn dijsktra(self, ctx: &mut C) -> Option<usize>;
 }
 
 impl<C, T> Dijsktra<C> for T
@@ -34,8 +34,8 @@ where
     <T::Steps as IntoIterator>::Item: Transform<T>,
 {
     /// compute the shortest path through a graph of costs and states
-    fn dijsktra(self, context: &C) -> Option<usize> {
-        let mut visited = HashMap::new();
+    fn dijsktra(self, context: &mut C) -> Option<usize> {
+        let mut visited = HashMap::with_capacity(1024);
 
         let mut pq = BinaryHeap::new();
         pq.push((Reverse(0), self));
@@ -47,9 +47,8 @@ where
             for step in state.steps(context) {
                 let cost = cost + step.cost();
                 let new_state = step.transform(&state);
-                let new_hash = manual_hash(&new_state);
 
-                match visited.entry(new_hash) {
+                match visited.entry(manually_hash(&new_state)) {
                     // can we get to this (alread seen) state with a reduced cost?
                     Entry::Occupied(mut entry) if cost < *entry.get() => {
                         entry.insert(cost);
@@ -67,9 +66,9 @@ where
     }
 }
 
-fn manual_hash<H: Hash>(what: &H) -> u64 {
+fn manually_hash<H: Hash>(state: &H) -> u64 {
     let mut hasher = HASHER_BUILDER.build_hasher();
-    what.hash(&mut hasher);
+    state.hash(&mut hasher);
     hasher.finish()
 }
 

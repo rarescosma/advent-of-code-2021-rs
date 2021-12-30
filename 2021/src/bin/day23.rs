@@ -22,7 +22,26 @@ impl Tile {
 
 type State = Map<Tile>;
 
-struct PodContext;
+struct PodContext {
+    vis: Vec<(Pos, usize)>,
+    seen: HashSet<Pos>,
+    q: VecDeque<(Pos, usize)>,
+}
+
+impl PodContext {
+    fn new() -> Self {
+        let vis = Vec::with_capacity(100);
+        let seen = HashSet::<Pos>::with_capacity(100);
+        let q = VecDeque::with_capacity(100);
+        Self { vis, seen, q }
+    }
+
+    fn clear(&mut self) {
+        self.vis.clear();
+        self.seen.clear();
+        self.q.clear();
+    }
+}
 
 impl GameState<PodContext> for State {
     type Steps = ArrayVec<Move, 64>;
@@ -39,12 +58,12 @@ impl GameState<PodContext> for State {
     }
 
     /// Get all possible moves for a map
-    fn steps(&self, _: &PodContext) -> ArrayVec<Move, 64> {
+    fn steps(&self, ctx: &mut PodContext) -> ArrayVec<Move, 64> {
         self.iter()
             .filter(|x| x.is_pod(self))
             .flat_map(|from| {
                 let step_cost = [1, 10, 100, 1000][(from.get_byte(self) - b'A') as usize];
-                visible(self, from)
+                visible(self, from, ctx)
                     .into_iter()
                     .map(move |(to, steps)| Move {
                         from,
@@ -165,22 +184,21 @@ fn room(pod: u8) -> i32 {
 }
 
 /// Generate all visible positions from the starting position
-fn visible(m: &State, start_pos: Pos) -> ArrayVec<(Pos, usize), 64> {
-    let mut vis = ArrayVec::new();
-    let mut seen = HashSet::<Pos>::new();
-    let mut q = VecDeque::new();
-    q.push_back((start_pos, 0));
+fn visible(m: &State, start_pos: Pos, ctx: &mut PodContext) -> impl Iterator<Item = (Pos, usize)> {
+    ctx.clear();
 
-    while let Some((pos, steps)) = q.pop_back() {
+    ctx.q.push_back((start_pos, 0));
+
+    while let Some((pos, steps)) = ctx.q.pop_back() {
         for neigh in pos.neighbors_simple() {
-            if neigh.is_empty(m) && !seen.contains(&neigh) {
-                vis.push((neigh, steps + 1));
-                q.push_back((neigh, steps + 1));
-                seen.insert(neigh);
+            if neigh.is_empty(m) && !ctx.seen.contains(&neigh) {
+                ctx.vis.push((neigh, steps + 1));
+                ctx.q.push_back((neigh, steps + 1));
+                ctx.seen.insert(neigh);
             }
         }
     }
-    vis
+    ctx.vis.to_owned().into_iter()
 }
 
 fn solve(input: Vec<&str>) -> usize {
@@ -191,7 +209,7 @@ fn solve(input: Vec<&str>) -> usize {
 
     let map = Map::<Tile>::new((11, input.len() - 1).into(), tiles);
 
-    map.dijsktra(&PodContext).unwrap()
+    map.dijsktra(&mut PodContext::new()).unwrap()
 }
 
 impl From<u8> for Tile {
