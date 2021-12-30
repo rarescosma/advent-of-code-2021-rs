@@ -1,54 +1,71 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
+use regex::Regex;
 
-fn find_modelnum(
-    visited: &mut HashSet<(i64, usize)>,
-    blocks: &[(i64, i64, i64)],
-    block: usize,
-    z: i64,
-    range: &[i64; 9],
-) -> Option<i64> {
-    if block == blocks.len() {
-        return if z == 0 { Some(0) } else { None };
-    }
-    if visited.contains(&(z, block)) {
-        return None;
-    }
-    let (p1, p2, p3) = blocks[block];
-    for &i in range {
-        let x = (z % 26 + p2 != i) as i64;
-        let z = (z / p1) * (25 * x + 1) + (i + p3) * x;
-        if let Some(n) = find_modelnum(visited, blocks, block + 1, z, range) {
-            return Some(n * 10 + i);
-        }
-    }
-    visited.insert((z, block));
-    None
+lazy_static! {
+    static ref PROG_REGEX: Regex = Regex::new(
+        r"inp w
+mul x 0
+add x z
+mod x 26
+div z (-?\d+)
+add x (-?\d+)
+eql x w
+eql x 0
+mul y 0
+add y 25
+mul y x
+add y 1
+mul z y
+mul y 0
+add y w
+add y (-?\d+)
+mul y x
+add z y"
+    )
+    .unwrap();
 }
 
-fn solve(blocks: &[(i64, i64, i64)], biggest: bool) -> String {
-    let range = if biggest {
-        [9, 8, 7, 6, 5, 4, 3, 2, 1]
-    } else {
-        [1, 2, 3, 4, 5, 6, 7, 8, 9]
-    };
-    let answer = find_modelnum(&mut HashSet::new(), blocks, 0, 0, &range).unwrap();
-    answer.to_string().chars().rev().collect()
+fn grok_asm(input: &str) -> Vec<[i64; 3]> {
+    PROG_REGEX
+        .captures_iter(input)
+        .map(|captures| {
+            let p0 = captures[1].parse().unwrap();
+            let p1 = captures[2].parse().unwrap();
+            let p2 = captures[3].parse().unwrap();
+            [p0, p1, p2]
+        })
+        .collect()
+}
+
+fn read_input() -> Vec<[i64; 3]> {
+    grok_asm(include_str!("../../inputs/day24.txt"))
+}
+
+fn solve(params: Vec<[i64; 3]>) -> (String, String) {
+    let mut stack = VecDeque::new();
+    let mut min = [0; 14];
+    let mut max = [0; 14];
+    for (j, &[p0, p1, p2]) in params.iter().enumerate() {
+        match p0 {
+            1 => stack.push_back((j, p2)),
+
+            26 => {
+                let (i, c) = stack.pop_back().unwrap();
+                let d = p1 + c;
+                let (i, j, d) = if d < 0 { (j, i, -d) } else { (i, j, d) };
+                max[i] = 9 - d;
+                max[j] = 9;
+                min[i] = 1;
+                min[j] = 1 + d;
+            }
+            _ => unreachable!(),
+        }
+    }
+    let min = min.iter().join("");
+    let max = max.iter().join("");
+    (max, min)
 }
 
 aoc_2021::main! {
-    let lines = include_str!("../../inputs/day24.txt")
-        .lines()
-        .collect::<Vec<_>>();
-
-    let blocks: Vec<_> = lines
-        .chunks(18)
-        .map(|block| {
-            let p1 = block[4][6..].parse().unwrap();
-            let p2 = block[5][6..].parse().unwrap();
-            let p3 = block[15][6..].parse().unwrap();
-            (p1, p2, p3)
-        })
-        .collect();
-
-    (solve(&blocks, true), solve(&blocks, false))
+    solve(read_input())
 }
