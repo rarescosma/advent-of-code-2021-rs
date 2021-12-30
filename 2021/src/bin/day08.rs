@@ -1,7 +1,7 @@
 use std::hash::{Hash, Hasher};
 use std::str::FromStr;
 
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(Parser)]
 #[grammar = "parsers/day08-digits.pest"]

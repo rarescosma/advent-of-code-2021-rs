@@ -1,7 +1,7 @@
 use std::fmt::Debug;
 use std::ops::{Add, Sub};
 
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(Parser)]
 #[grammar = "parsers/day19-scanners.pest"]

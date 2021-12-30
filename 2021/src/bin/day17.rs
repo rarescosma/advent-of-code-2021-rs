@@ -1,4 +1,4 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 lazy_static! {
     static ref X_MIN: isize = 137;

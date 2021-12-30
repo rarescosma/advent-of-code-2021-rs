@@ -3,7 +3,7 @@ use std::ops::{Deref, DerefMut};
 
 use aoc_2dmap::prelude::*;
 use aoc_dijsktra::{dijsktra, GameState, Transform};
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Copy, Clone)]
 enum Tile {

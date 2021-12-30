@@ -3,7 +3,7 @@ use std::ops::{Add, Deref};
 
 use aoc_2dmap::prelude::*;
 use aoc_dijsktra::{dijsktra, GameState, Transform};
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Clone)]
 struct State {

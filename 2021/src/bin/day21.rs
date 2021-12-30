@@ -1,4 +1,4 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 lazy_static! {
     static ref DIRAC: HashMap<u64, u64> = {

@@ -1,5 +1,5 @@
 use crate::Cube;
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(Parser)]
 #[grammar = "parsers/day22-cubes.pest"]
