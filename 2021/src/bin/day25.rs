@@ -1,9 +1,8 @@
-use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
 
 use aoc_2dmap::prelude::*;
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 enum Cuke {
     Empty = 0,
     South = 1,
@@ -50,6 +49,7 @@ impl CukeSim for CukeMap {
     fn step_cukes(self, cuke: Cuke) -> (usize, Self) {
         let mut num_moves = 0;
         let mut new_map = self.clone();
+        let offset = cuke.offset();
         self.iter()
             .map(|p| (p, self.get(p).unwrap()))
             .into_iter()
@@ -57,7 +57,7 @@ impl CukeSim for CukeMap {
                 if cuke != c || self.has_neighbor(p) {
                     return;
                 }
-                new_map.set(self.wrapping_add(p, c.offset()), cuke);
+                new_map.set(self.wrapping_add(p, offset), cuke);
                 new_map.set(p, Cuke::Empty);
                 num_moves += 1;
             });
@@ -80,20 +80,6 @@ impl FromStr for Cuke {
             ">" => Self::East,
             _ => Self::Empty,
         })
-    }
-}
-
-impl Display for Cuke {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                Self::Empty => '.',
-                Self::South => 'v',
-                Self::East => '>',
-            }
-        )
     }
 }
 
