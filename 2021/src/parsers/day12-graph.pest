@@ -1,5 +1,3 @@
-small_cave = { ASCII_ALPHA_LOWER+ }
-big_cave = { ASCII_ALPHA_UPPER+ }
-cave = _{ big_cave | small_cave }
+cave = @{ ASCII_ALPHA+ }
 line = { cave ~ "-" ~ cave }
 lines = { SOI ~ line ~ (NEWLINE ~ line)* ~ NEWLINE? ~ EOI}

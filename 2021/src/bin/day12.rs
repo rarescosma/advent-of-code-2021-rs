@@ -4,128 +4,86 @@ use aoc_prelude::*;
 #[grammar = "parsers/day12-graph.pest"]
 pub struct GraphParser;
 
-type CaveId<'a> = &'a str;
-
-#[derive(Debug, Clone)]
-enum CaveType {
-    Big,
-    Small,
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+enum Cave<'a> {
+    Start,
+    End,
+    Node { name: &'a str, small: bool },
 }
 
-#[derive(Debug)]
-struct Graph<'a> {
-    cave_types: HashMap<CaveId<'a>, CaveType>,
-    edges: MultiMap<CaveId<'a>, CaveId<'a>>,
-}
-
-impl<'a> Graph<'a> {
-    fn is_big(&self, cave_id: CaveId) -> bool {
-        return matches!(self.cave_types.get(cave_id).unwrap(), CaveType::Big);
+impl<'a> From<&'a str> for Cave<'a> {
+    fn from(s: &'a str) -> Cave<'a> {
+        match s {
+            "start" => Self::Start,
+            "end" => Self::End,
+            name => Cave::Node {
+                name,
+                small: is_lower(name),
+            },
+        }
     }
 }
 
-fn read_input() -> String {
-    include_str!("../../inputs/day12.txt").into()
-}
+type Graph<'g> = MultiMap<Cave<'g>, Cave<'g>>;
 
-fn process_line<'r>(
-    line: &(impl Iterator<Item = Pair<'r, Rule>> + Clone),
-) -> Vec<(CaveId<'r>, CaveType)> {
-    line.to_owned()
-        .map(|x| match x.as_rule() {
-            Rule::big_cave => (x.as_str(), CaveType::Big),
-            Rule::small_cave => (x.as_str(), CaveType::Small),
-            _ => unreachable!(),
-        })
-        .collect()
-}
+fn read_input() -> Graph<'static> {
+    let mut inner = Vec::with_capacity(2);
 
-fn main() {
-    let input = read_input();
-
-    let graph_parse = GraphParser::parse(Rule::lines, &input)
+    GraphParser::parse(Rule::lines, include_str!("../../inputs/day12.txt"))
         .expect("failed parse")
         .next()
-        .unwrap();
-
-    let caves: Vec<Vec<(CaveId, CaveType)>> = graph_parse
+        .unwrap()
         .into_inner()
-        .filter(|x| x.as_rule() == Rule::line)
-        .map(|line| process_line(&line.into_inner()))
-        .collect();
-
-    let mut cave_types: HashMap<CaveId, CaveType> = HashMap::new();
-    caves
-        .to_owned()
-        .into_iter()
-        .flatten()
-        .for_each(|(cave_id, cave)| {
-            cave_types.insert(cave_id, cave);
-        });
-
-    let mut edges: MultiMap<CaveId, CaveId> = MultiMap::new();
-    caves.into_iter().for_each(|x| {
-        edges.insert(x[0].0, x[1].0);
-        edges.insert(x[1].0, x[0].0)
-    });
-
-    let graph = Graph { cave_types, edges };
-
-    let mut path = vec!["start"];
-    let mut answer: usize = 0;
-    bfs(&graph, "start", "end", &mut path, &mut answer);
-    dbg!(&answer);
+        .filter(|pair| pair.as_rule() == Rule::line)
+        .flat_map(|pair| {
+            inner.clear();
+            inner.extend(pair.into_inner());
+            let (from, to) = (inner[0].as_str().into(), inner[1].as_str().into());
+            [(from, to), (to, from)]
+        })
+        .fold(Graph::with_capacity(256), |mut graph, (from, to)| {
+            graph.insert(from, to);
+            graph
+        })
 }
 
-fn get_outgoing<'a>(graph: &Graph<'a>, from: CaveId) -> Vec<CaveId<'a>> {
-    if from == "end" {
-        return Vec::new();
-    }
-
-    if let Some(out) = graph.edges.get_vec(from) {
-        return out.to_owned();
-    }
-    Vec::new()
+fn is_lower(s: &str) -> bool {
+    s.chars().all(char::is_lowercase)
 }
 
-fn allowed_revisit(graph: &Graph, next_node: CaveId, cur_path: &[CaveId]) -> bool {
-    if graph.is_big(next_node) {
-        return true;
-    }
-    if next_node == "start" || next_node == "end" {
-        return false;
-    }
-    let times = cur_path.iter().filter(|x| **x == next_node).count();
-    times < 2
-}
+fn solve(graph: &Graph<'_>, allow_small_revisit: bool) -> Option<usize> {
+    let mut paths = 0;
 
-fn no_of_repeated_small_caves(graph: &Graph, path: &[CaveId]) -> usize {
-    let mut freqs: BTreeMap<&CaveId, usize> = BTreeMap::new();
-    for cave_id in path {
-        if !graph.is_big(cave_id) {
-            *freqs.entry(cave_id).or_insert(0) += 1;
-        }
-    }
-    freqs.values().filter(|&&x| x >= 2).count()
-}
+    let mut deck = VecDeque::with_capacity(2048);
+    deck.push_front((vec![Cave::Start], false));
 
-fn bfs<'a>(
-    graph: &Graph<'a>,
-    start_id: CaveId,
-    end_id: CaveId,
-    path: &mut Vec<CaveId<'a>>,
-    num_paths: &mut usize,
-) {
-    let next_nodes = get_outgoing(graph, start_id);
-    for next_node in next_nodes.iter() {
-        if *next_node == end_id {
-            if no_of_repeated_small_caves(graph, path) < 2 {
-                *num_paths += 1;
+    while let Some((path, small_revisited)) = deck.pop_front() {
+        for cave in graph.get_vec(path.last()?)? {
+            match *cave {
+                Cave::Start => continue,
+                Cave::End => paths += 1,
+                Cave::Node { name: _, small } => {
+                    let mut small_revisited = small_revisited;
+                    if small && path.contains(cave) {
+                        if !allow_small_revisit || small_revisited {
+                            continue;
+                        }
+                        small_revisited = true;
+                    };
+                    let new_path = path.iter().cloned().chain([*cave]).collect();
+                    deck.push_front((new_path, small_revisited));
+                }
             }
-        } else if allowed_revisit(graph, next_node, path) {
-            path.push(next_node);
-            bfs(graph, next_node, end_id, path, num_paths);
-            path.pop();
         }
     }
+    Some(paths)
+}
+
+aoc_2021::main! {
+    let graph = read_input();
+
+    let p1 = solve(&graph, false).unwrap();
+    let p2 = solve(&graph, true).unwrap();
+
+    (p1, p2)
 }
