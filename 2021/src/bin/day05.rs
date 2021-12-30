@@ -1,6 +1,6 @@
 use std::fmt::Debug;
 
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(Parser)]
 #[grammar = "parsers/day05-line.pest"]

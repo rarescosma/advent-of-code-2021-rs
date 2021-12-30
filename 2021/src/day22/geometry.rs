@@ -1,4 +1,4 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 use std::fmt::{Debug, Formatter};
 

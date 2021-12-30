@@ -1,5 +1,5 @@
 use aoc_2dmap::prelude::*;
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(Parser)]
 #[grammar = "parsers/day09-depth.pest"]

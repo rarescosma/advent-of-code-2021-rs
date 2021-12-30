@@ -1,4 +1,4 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 use regex::Regex;
 use std::process::Command;

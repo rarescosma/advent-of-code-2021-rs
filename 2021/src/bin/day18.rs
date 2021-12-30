@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Add, BitAnd};
 use std::str::FromStr;
 
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(Parser)]
 #[grammar = "parsers/day18-snails.pest"]

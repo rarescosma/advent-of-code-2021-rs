@@ -1,4 +1,4 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 #[derive(Parser)]
 #[grammar = "parsers/day12-graph.pest"]

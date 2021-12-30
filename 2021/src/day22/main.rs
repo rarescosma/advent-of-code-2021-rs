@@ -3,7 +3,7 @@ mod parse;
 mod tests;
 
 use crate::geometry::*;
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 use std::cmp::{max, min};
 use std::fmt::{Debug, Formatter};

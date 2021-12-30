@@ -1,4 +1,4 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 use deku::prelude::*;
 
 #[derive(Debug, PartialEq, Copy, Clone, DekuRead)]

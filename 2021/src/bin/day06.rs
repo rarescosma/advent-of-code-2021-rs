@@ -1,4 +1,4 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 type FishState = u16;
 type FishCounts = HashMap<FishState, usize>;

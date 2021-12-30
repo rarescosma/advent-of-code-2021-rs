@@ -1,4 +1,4 @@
-use aoc_prelude::prelude::*;
+use aoc_prelude::*;
 
 struct Pair(char, char, u32, u16);
 
