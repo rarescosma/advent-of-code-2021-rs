@@ -22,20 +22,16 @@ impl GameState<ArrayVec<Move, 4>, ExtendingMap> for State {
     }
 
     fn steps(&self, map: &ExtendingMap) -> ArrayVec<Move, 4> {
-        [
-            (self.pos.x + 1, self.pos.y).into(),
-            (self.pos.x - 1, self.pos.y).into(),
-            (self.pos.x, self.pos.y + 1).into(),
-            (self.pos.x, self.pos.y - 1).into(),
-        ]
-        .into_iter()
-        .flat_map(|n_pos| {
-            Some(Move {
-                to: n_pos,
-                cost: map.get(n_pos)?,
+        self.pos
+            .neighbors_simple()
+            .into_iter()
+            .flat_map(|n_pos| {
+                Some(Move {
+                    to: n_pos,
+                    cost: map.get(n_pos)?,
+                })
             })
-        })
-        .collect()
+            .collect()
     }
 }
 
