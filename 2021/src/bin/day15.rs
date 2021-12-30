@@ -2,7 +2,7 @@ use std::hash::Hash;
 use std::ops::{Add, Deref};
 
 use aoc_2dmap::prelude::*;
-use aoc_dijsktra::{dijsktra, GameState, Transform};
+use aoc_dijsktra::{GameState, Transform};
 use aoc_prelude::*;
 
 #[derive(PartialOrd, Ord, PartialEq, Eq, Hash, Clone)]
@@ -122,11 +122,12 @@ fn inc_tile(t: usize) -> usize {
 }
 
 fn solve(map: &ExtendingMap) -> usize {
-    let initial_state = State {
+    State {
         pos: Pos::default(),
         goal: (map.size + (-1, -1).into()),
-    };
-    dijsktra(initial_state, map).unwrap()
+    }
+    .dijsktra(map)
+    .unwrap()
 }
 
 aoc_2021::main! {
