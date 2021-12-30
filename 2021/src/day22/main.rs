@@ -35,7 +35,7 @@ impl Cube {
     }
 
     fn subtract_from(&self, bigger: &Cube) -> HashSet<Cube> {
-        let mut neighs = HashSet::new();
+        let mut neighs = HashSet::with_capacity(27);
 
         // take the common cuboid and move it towards the planes of the cuboid
         // we're subtracting from
