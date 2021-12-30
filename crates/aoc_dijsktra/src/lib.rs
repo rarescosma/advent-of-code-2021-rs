@@ -8,7 +8,7 @@ use hashbrown::HashMap;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref BUILDER: RandomState = RandomState::new();
+    static ref HASHER_BUILDER: RandomState = RandomState::new();
 }
 
 pub trait Transform<G> {
@@ -16,14 +16,23 @@ pub trait Transform<G> {
     fn transform(&self, game_state: &G) -> G;
 }
 
-pub trait GameState<V, C>: Ord + Hash + Sized
-where
-    V: IntoIterator,
-    <V as IntoIterator>::Item: Transform<Self>,
-{
-    fn accept(&self) -> bool;
-    fn steps(&self, context: &C) -> V;
+pub trait GameState<C>: Ord + Hash {
+    type Steps: IntoIterator;
 
+    fn accept(&self) -> bool;
+
+    fn steps(&self, context: &C) -> Self::Steps;
+}
+
+pub trait Dijsktra<C>: private::Sealed<C> {
+    fn dijsktra(self, context: &C) -> Option<usize>;
+}
+
+impl<C, T> Dijsktra<C> for T
+where
+    T: GameState<C>,
+    <T::Steps as IntoIterator>::Item: Transform<T>,
+{
     /// compute the shortest path through a graph of costs and states
     fn dijsktra(self, context: &C) -> Option<usize> {
         let mut visited = HashMap::new();
@@ -58,11 +67,21 @@ where
     }
 }
 
-fn manual_hash<H>(what: H) -> u64
-where
-    H: Hash,
-{
-    let mut hasher = BUILDER.build_hasher();
+fn manual_hash<H: Hash>(what: &H) -> u64 {
+    let mut hasher = HASHER_BUILDER.build_hasher();
     what.hash(&mut hasher);
     hasher.finish()
+}
+
+mod private {
+    use super::{GameState, Transform};
+
+    pub trait Sealed<C> {}
+
+    impl<T, C> Sealed<C> for T
+    where
+        T: GameState<C>,
+        <T::Steps as IntoIterator>::Item: Transform<T>,
+    {
+    }
 }
