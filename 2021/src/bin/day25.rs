@@ -34,10 +34,9 @@ trait CukeSim {
 
 impl CukeSim for CukeMap {
     fn has_neighbor(&self, p: Pos) -> bool {
-        let cuke = self.get(p).unwrap();
+        let cuke = self.get_unchecked(p);
         !self
-            .get(self.wrapping_add(p, cuke.offset()))
-            .unwrap()
+            .get_unchecked(self.wrapping_add(p, cuke.offset()))
             .is_empty()
     }
 
@@ -51,7 +50,7 @@ impl CukeSim for CukeMap {
         let mut new_map = self.clone();
         let offset = cuke.offset();
         self.iter()
-            .map(|p| (p, self.get(p).unwrap()))
+            .map(|p| (p, self.get_unchecked(p)))
             .into_iter()
             .for_each(|(p, c)| {
                 if cuke != c || self.has_neighbor(p) {

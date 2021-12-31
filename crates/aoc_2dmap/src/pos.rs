@@ -15,6 +15,12 @@ impl Pos {
     }
 }
 
+impl AsRef<Pos> for Pos {
+    fn as_ref(&self) -> &Pos {
+        self
+    }
+}
+
 impl<U> From<(U, U)> for Pos
 where
     U: PrimInt,

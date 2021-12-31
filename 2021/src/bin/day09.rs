@@ -5,7 +5,6 @@ use aoc_prelude::*;
 #[grammar = "parsers/day09-depth.pest"]
 pub struct DepthParser;
 
-#[derive(Debug)]
 struct DepthMap(Map<u8>);
 
 const MAX_DEPTH: u8 = 9;

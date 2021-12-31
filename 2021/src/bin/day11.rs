@@ -55,7 +55,8 @@ impl OctoMap {
         let positions: Vec<_> = self.0.iter().collect();
         for pos in positions {
             if let Some(tile) = self.0.get(pos) {
-                self.0.set(pos, tile.increment());
+                let new_tile = tile.increment();
+                self.0.set(pos, new_tile);
             }
         }
 

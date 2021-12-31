@@ -1,4 +1,4 @@
-use std::fmt::{Display, Formatter};
+use std::fmt::Display;
 use std::ops::Deref;
 
 use aoc_2dmap::prelude::*;
@@ -6,22 +6,14 @@ use aoc_2dmap::prelude::*;
 const LIGHT: char = '#';
 const DARK: char = '.';
 
-#[derive(Debug, Clone)]
-struct EnhanceMap<T>(Map<T>)
-where
-    T: Copy + Display;
+#[derive(Clone)]
+struct EnhanceMap<T>(Map<T>);
 
 impl<T: Copy + Display> Deref for EnhanceMap<T> {
     type Target = Map<T>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
-    }
-}
-
-impl Display for EnhanceMap<char> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.0)
     }
 }
 
@@ -32,7 +24,7 @@ impl EnhanceMap<char> {
             if pos.x == 0 || pos.y == 0 || pos.x == self.size.x + 1 || pos.y == self.size.y + 1 {
                 continue;
             }
-            new_map.set(pos, self.get(pos + (-1, -1).into()).unwrap());
+            new_map.set(pos, self.get_unchecked(pos + (-1, -1).into()));
         }
         std::mem::swap(&mut self.0, &mut new_map)
     }
@@ -71,7 +63,7 @@ impl EnhanceMap<char> {
 
 fn pixel_count(map: &EnhanceMap<char>) -> usize {
     map.iter()
-        .flat_map(|x| map.get(x))
+        .map(|x| map.get_unchecked(x))
         .filter(|x| *x == LIGHT)
         .count()
 }
