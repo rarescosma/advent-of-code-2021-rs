@@ -24,16 +24,13 @@ impl GameState<ExtendingMap> for State {
     }
 
     fn steps(&self, context: &mut ExtendingMap) -> Self::Steps {
-        self.pos
-            .neighbors_simple()
-            .into_iter()
-            .flat_map(|n_pos| {
-                Some(Move {
-                    to: n_pos,
-                    cost: context.get(n_pos)?,
-                })
-            })
-            .collect()
+        let mut steps = ArrayVec::new();
+        for n_pos in self.pos.neighbors_simple() {
+            if let Some(cost) = context.get(n_pos) {
+                steps.push(Move { to: n_pos, cost })
+            }
+        }
+        steps
     }
 }
 
