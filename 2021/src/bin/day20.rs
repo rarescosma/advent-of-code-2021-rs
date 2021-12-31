@@ -19,7 +19,7 @@ impl<T: Copy + Display> Deref for EnhanceMap<T> {
 
 impl EnhanceMap<char> {
     fn pad(&mut self, padding: char) {
-        let mut new_map = Map::<char>::fill((self.size.x + 2, self.size.y + 2).into(), padding);
+        let mut new_map = Map::<char>::fill((self.size.x + 2, self.size.y + 2), padding);
         for pos in new_map.to_owned().iter() {
             if pos.x == 0 || pos.y == 0 || pos.x == self.size.x + 1 || pos.y == self.size.y + 1 {
                 continue;
@@ -78,9 +78,10 @@ aoc_2021::main! {
     let width = map_lines[0].len();
     let height = map_lines.len();
 
-    let tiles: Vec<_> = map_lines.iter().flat_map(|x| x.chars()).collect();
-
-    let mut map = EnhanceMap(Map::new((width, height).into(), tiles));
+    let mut map = EnhanceMap(Map::new(
+        (width, height),
+        map_lines.iter().flat_map(|x| x.chars()),
+    ));
 
     for step in 0..=1 {
         map.enhance(algo, step);

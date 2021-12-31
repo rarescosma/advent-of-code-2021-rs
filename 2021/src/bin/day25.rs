@@ -85,12 +85,13 @@ impl FromStr for Cuke {
 aoc_2021::main! {
     let lines: Vec<_> = include_str!("../../inputs/day25.txt").lines().collect();
 
-    let tiles: Vec<_> = lines
-        .join("")
-        .chars()
-        .flat_map(|x| x.to_string().parse::<Cuke>())
-        .collect();
-    let mut map = Map::<Cuke>::new((lines[0].len(), lines.len()).into(), tiles);
+    let mut map = Map::<Cuke>::new(
+        (lines[0].len(), lines.len()),
+        lines
+            .join("")
+            .chars()
+            .flat_map(|x| x.to_string().parse::<Cuke>()),
+    );
 
     let mut n_steps = 0;
 

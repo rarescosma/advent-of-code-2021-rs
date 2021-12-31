@@ -53,12 +53,10 @@ impl OctoMap {
     // return number of flashes
     fn step(&mut self) -> usize {
         let positions: Vec<_> = self.0.iter().collect();
-        for pos in positions {
-            if let Some(tile) = self.0.get(pos) {
-                let new_tile = tile.increment();
-                self.0.set(pos, new_tile);
-            }
-        }
+        positions.iter().for_each(|pos| {
+            let new_tile = self.0.get_unchecked(pos).increment();
+            self.0.set(pos, new_tile);
+        });
 
         let mut flashing: VecDeque<_> = VecDeque::from(self.flashing());
         let mut flashed: HashSet<_> = HashSet::new();
@@ -104,14 +102,14 @@ impl OctoMap {
 aoc_2021::main! {
     let lines = read_input();
 
-    let octos: Vec<Octo> = lines.concat().chars().map(|x| x.into()).collect();
-
-    let octo_count = octos.len();
-
     let width = lines[0].len();
     let height = lines.len();
+    let octo_count = width * height;
 
-    let mut map = OctoMap(Map::new((width, height).into(), octos));
+    let mut map = OctoMap(Map::new(
+        (width, height),
+        lines.concat().chars().map_into()
+    ));
 
     let mut p1 = 0;
     let mut total_count = 0;

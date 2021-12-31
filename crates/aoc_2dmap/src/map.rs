@@ -19,19 +19,23 @@ impl<T: Clone> Clone for Map<T> {
 }
 
 impl<T> Map<T> {
-    pub fn new(size: Pos, tiles: Vec<T>) -> Self {
+    pub fn new<S: Into<MapSize>>(size: S, tiles: impl Iterator<Item = T>) -> Self {
+        let size = size.into();
+        let tiles = tiles.collect::<Vec<T>>();
+        assert_eq!(tiles.len(), (size.x * size.y) as usize);
         Self { size, tiles }
     }
 
-    pub fn fill(size: MapSize, default: T) -> Self
+    pub fn fill<S: Into<MapSize>>(size: S, default: T) -> Self
     where
         T: Clone,
     {
+        let size = size.into();
         let tiles = vec![default; size.x as usize * size.y as usize];
         Self { size, tiles }
     }
 
-    pub fn fill_default(size: MapSize) -> Self
+    pub fn fill_default<S: Into<MapSize>>(size: S) -> Self
     where
         T: Clone + Default,
     {
@@ -66,8 +70,8 @@ impl<T> Map<T> {
         None
     }
 
-    pub fn set(&mut self, pos: Pos, tile: T) {
-        if let Some(index) = self.index(pos) {
+    pub fn set<P: AsRef<Pos>>(&mut self, pos: P, tile: T) {
+        if let Some(index) = self.index(*pos.as_ref()) {
             self.tiles[index] = tile;
         }
     }
@@ -97,7 +101,12 @@ impl<T> Map<T> {
 
 impl<T: Display + Copy> Display for Map<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut row = -1;
         for pos in self.iter() {
+            if pos.y != row {
+                row = pos.y;
+                writeln!(f)?;
+            }
             write!(f, "{}", self.get(pos).unwrap())?;
         }
         Ok(())

@@ -11,9 +11,9 @@ const MAX_DEPTH: u8 = 9;
 
 impl DepthMap {
     fn new(depths: Vec<Vec<u8>>) -> Self {
-        Self(Map::new(
-            (depths[0].len(), depths.len()).into(),
-            depths.into_iter().flatten().collect(),
+        Self(Map::<u8>::new(
+            (depths[0].len(), depths.len()),
+            depths.into_iter().flatten(),
         ))
     }
 
