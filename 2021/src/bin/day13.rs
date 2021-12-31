@@ -140,10 +140,7 @@ aoc_2021::main! {
     let max_x = points.iter().map(|p| p.x).reduce(max).unwrap() + 1;
     let max_y = points.iter().map(|p| p.y).reduce(max).unwrap() + 1;
 
-    let mut map = FoldingMap(Map::<char>::new(
-        MapSize { x: max_x, y: max_y },
-        vec![' '; max_x as usize * max_y as usize],
-    ));
+    let mut map = FoldingMap(Map::<char>::fill((max_x, max_y), ' '));
 
     for point in points {
         map.0.set(point, '#');
@@ -164,5 +161,5 @@ aoc_2021::main! {
         map.fold(fold.axis, fold.at, char_sum);
     });
 
-    (p1, format!("\n{}", &map.0))
+    (p1, map.0.to_string())
 }

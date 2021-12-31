@@ -10,8 +10,8 @@ pub struct Pos {
 }
 
 impl Pos {
-    fn new(x: i32, y: i32) -> Pos {
-        Pos { x, y }
+    fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
     }
 }
 
@@ -21,11 +21,12 @@ impl AsRef<Pos> for Pos {
     }
 }
 
-impl<U> From<(U, U)> for Pos
+impl<X, Y> From<(X, Y)> for Pos
 where
-    U: PrimInt,
+    X: PrimInt,
+    Y: PrimInt,
 {
-    fn from(tpl: (U, U)) -> Self {
+    fn from(tpl: (X, Y)) -> Self {
         Pos {
             x: tpl.0.to_i32().unwrap(),
             y: tpl.1.to_i32().unwrap(),
@@ -76,9 +77,10 @@ pub enum Axis {
 }
 
 impl Axis {
-    pub fn map<U>(&self, x: U, y: U) -> Pos
+    pub fn map<X, Y>(&self, x: X, y: Y) -> Pos
     where
-        U: PrimInt,
+        X: PrimInt,
+        Y: PrimInt,
     {
         match self {
             Axis::X => (x, y).into(),

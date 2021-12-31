@@ -46,7 +46,7 @@ impl PodContext {
 impl GameState<PodContext> for State {
     type Steps = ArrayVec<Move, 64>;
 
-    /// true if PodMap is in solved state
+    /// True if all columns are solved
     fn accept(&self) -> bool {
         (0..=3).all(|idx| {
             let c = (idx as u8) + b'A';
@@ -57,7 +57,7 @@ impl GameState<PodContext> for State {
         })
     }
 
-    /// Get all possible moves for a map
+    /// Get all possible octopod moves
     fn steps(&self, ctx: &mut PodContext) -> ArrayVec<Move, 64> {
         self.iter()
             .filter(|x| x.is_pod(self))
@@ -202,12 +202,15 @@ fn visible(m: &State, start_pos: Pos, ctx: &mut PodContext) -> impl Iterator<Ite
 }
 
 fn solve(input: Vec<&str>) -> usize {
-    let tiles: Vec<Tile> = input
-        .iter()
-        .flat_map(|l| l.bytes().map(Tile::from))
-        .collect();
+    let map_size = (input[0].len(), input.len() - 1);
 
-    let map = Map::<Tile>::new((11, input.len() - 1).into(), tiles);
+    let map = Map::<Tile>::new(
+        map_size,
+        input
+            .into_iter()
+            .take(map_size.1)
+            .flat_map(|l| l.bytes().map(Tile::from)),
+    );
 
     map.dijsktra(&mut PodContext::new()).unwrap()
 }

@@ -82,10 +82,7 @@ impl Add for ExtendingMap {
         let width = max(self.size.x, rhs.size.x);
         let height = max(self.size.y, rhs.size.y);
 
-        let mut inner = Map::<usize>::fill_default(Pos {
-            x: width,
-            y: height,
-        });
+        let mut inner = Map::<usize>::fill_default((width, height));
 
         for x in 0..=width {
             for y in 0..=height {
@@ -135,21 +132,13 @@ fn solve(map: &mut ExtendingMap) -> usize {
 aoc_2021::main! {
     let lines = read_input();
 
-    let tiles: Vec<_> = lines
-        .iter()
-        .flat_map(|x| {
+    let mut map = ExtendingMap(Map::<usize>::new(
+        (lines[0].len(), lines.len()),
+        lines.iter().flat_map(|x| {
             x.chars()
                 .into_iter()
                 .flat_map(|c| c.to_string().parse::<usize>())
-        })
-        .collect();
-
-    let mut map = ExtendingMap(Map::<usize>::new(
-        Pos {
-            x: lines[0].len() as i32,
-            y: lines.len() as i32,
-        },
-        tiles,
+        }),
     ));
     let p1 = solve(&mut map);
 
