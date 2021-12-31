@@ -138,11 +138,11 @@ impl Add for Cube {
 
     fn add(self, rhs: Self) -> Self::Output {
         if self.contains(&rhs) {
-            return [self].iter().cloned().collect();
+            return HashSet::from_iter([self]);
         } else if rhs.contains(&self) {
-            return [rhs].iter().cloned().collect();
+            return HashSet::from_iter([rhs]);
         } else if !self.intersects(&rhs) {
-            return [self, rhs].iter().cloned().collect();
+            return HashSet::from_iter([self, rhs]);
         }
 
         let mut r_diff = rhs.subtract_from(&self);
@@ -160,7 +160,7 @@ impl Sub for Cube {
             return HashSet::new();
         }
         if !self.intersects(&inner) {
-            return [self].iter().cloned().collect();
+            return HashSet::from_iter([self]);
         }
         inner.subtract_from(&self)
     }
