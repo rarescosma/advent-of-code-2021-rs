@@ -1,15 +1,10 @@
 use std::cmp::Reverse;
 use std::collections::BinaryHeap;
-use std::hash::{BuildHasher, Hash, Hasher};
+use std::hash::Hash;
 
-use ahash::RandomState;
 use hashbrown::hash_map::Entry;
-use hashbrown::HashMap;
-use lazy_static::lazy_static;
 
-lazy_static! {
-    static ref HASHER_BUILDER: RandomState = RandomState::new();
-}
+mod hash;
 
 /// Transform one game state into another incurring a cost.
 pub trait Transform<G> {
@@ -45,7 +40,7 @@ where
     /// Compute the least total cost for reaching a goal (as indicated by
     /// the `accept` method on the `GameState` implementor).
     fn dijsktra(self, context: &mut C) -> Option<usize> {
-        let mut known = HashMap::with_capacity(1024);
+        let mut known = hash::build_hashmap();
 
         let mut pq = BinaryHeap::new();
         pq.push((Reverse(0), self));
@@ -55,19 +50,19 @@ where
                 return Some(cost);
             }
             for step in state.steps(context) {
-                let cost = cost + step.cost();
+                let new_cost = cost + step.cost();
                 let new_state = step.transform(&state);
 
-                match known.entry(manually_hash(&new_state)) {
+                match known.entry(hash::manually_hash(&new_state)) {
                     // Update if there's a less costly way to get to a known state...
-                    Entry::Occupied(mut entry) if cost < *entry.get() => {
-                        entry.insert(cost);
-                        pq.push((Reverse(cost), new_state));
+                    Entry::Occupied(mut entry) if new_cost < *entry.get() => {
+                        entry.insert(new_cost);
+                        pq.push((Reverse(new_cost), new_state));
                     }
                     // ...or if the state is unknown.
                     Entry::Vacant(entry) => {
-                        entry.insert(cost);
-                        pq.push((Reverse(cost), new_state));
+                        entry.insert(new_cost);
+                        pq.push((Reverse(new_cost), new_state));
                     }
                     _ => (),
                 }
@@ -75,15 +70,6 @@ where
         }
         None
     }
-}
-
-/// We want to keep track of the costs of visited GameStates, but
-/// inserting into `HashMap`s requires owned values, so we `manually_hash`
-/// instead to avoid the extra cloning (and the `Clone` bound).
-fn manually_hash<H: Hash>(state: &H) -> u64 {
-    let mut hasher = HASHER_BUILDER.build_hasher();
-    state.hash(&mut hasher);
-    hasher.finish()
 }
 
 /// Prevent other crates from implementing the `Dijsktra` trait. 😈
