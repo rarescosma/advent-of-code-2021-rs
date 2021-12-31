@@ -1,5 +1,5 @@
 use crate::pos::Pos;
-use std::fmt::{Debug, Display, Formatter};
+use std::fmt::{Display, Formatter};
 
 pub type MapSize = Pos;
 
@@ -18,20 +18,48 @@ impl<T: Clone> Clone for Map<T> {
     }
 }
 
-impl<T: Copy> Map<T> {
+impl<T> Map<T> {
     pub fn new(size: Pos, tiles: Vec<T>) -> Self {
         Self { size, tiles }
     }
 
-    pub fn get(&self, pos: Pos) -> Option<T> {
-        self.index(pos).map(|index| self.tiles[index])
+    pub fn fill(size: MapSize, default: T) -> Self
+    where
+        T: Clone,
+    {
+        let tiles = vec![default; size.x as usize * size.y as usize];
+        Self { size, tiles }
     }
 
-    pub fn get_col(&self, col: i32) -> Option<Vec<T>> {
+    pub fn fill_default(size: MapSize) -> Self
+    where
+        T: Clone + Default,
+    {
+        Self::fill(size, T::default())
+    }
+
+    pub fn get<P: AsRef<Pos>>(&self, pos: P) -> Option<T>
+    where
+        T: Copy,
+    {
+        self.index(*pos.as_ref()).map(|index| self.tiles[index])
+    }
+
+    pub fn get_unchecked<P: AsRef<Pos>>(&self, pos: P) -> T
+    where
+        T: Copy,
+    {
+        self.get(pos).unwrap()
+    }
+
+    pub fn get_col(&self, col: i32) -> Option<Vec<T>>
+    where
+        T: Copy,
+    {
         if (0..self.size.x).contains(&col) {
             return Some(
                 (0..self.size.y)
-                    .flat_map(|y| self.get((col, y).into()))
+                    .flat_map(|y| self.get(Pos::from((col, y))))
                     .collect(),
             );
         }
@@ -67,29 +95,10 @@ impl<T: Copy> Map<T> {
     }
 }
 
-impl<T: Clone + Default> Map<T> {
-    pub fn fill_default(size: MapSize) -> Self {
-        Self::fill(size, T::default())
-    }
-}
-
-impl<T: Clone> Map<T> {
-    pub fn fill(size: MapSize, default: T) -> Self {
-        let tiles = vec![default; size.x as usize * size.y as usize];
-        Self { size, tiles }
-    }
-}
-
-impl<T> Debug for Map<T>
-where
-    T: Debug + Copy + Display,
-{
+impl<T: Display + Copy> Display for Map<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        for y in 0..self.size.y {
-            for x in 0..self.size.x {
-                write!(f, "{}", self.get(Pos { x, y }).unwrap())?;
-            }
-            writeln!(f)?;
+        for pos in self.iter() {
+            write!(f, "{}", self.get(pos).unwrap())?;
         }
         Ok(())
     }

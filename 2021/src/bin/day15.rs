@@ -57,7 +57,7 @@ impl ExtendingMap {
     fn extend_front<P: Fn(usize) -> usize>(&self, along: Axis, by: i32, f: P) -> Self {
         let mut extended = Map::<usize>::fill_default(self.size + along.map(by, 0));
         for pos in self.iter() {
-            let tile = self.get(pos).unwrap();
+            let tile = self.get_unchecked(pos);
             extended.set(pos + along.map(by, 0), f(tile));
         }
         Self(extended)

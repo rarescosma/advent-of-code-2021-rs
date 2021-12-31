@@ -51,7 +51,7 @@ impl GameState<PodContext> for State {
         (0..=3).all(|idx| {
             let c = (idx as u8) + b'A';
             if let Some(column) = self.get_col(room(c)) {
-                return column[1..].iter().all(|t| *t == Tile::Pod(c));
+                return column[1..].iter().all(|&t| t == Tile::Pod(c));
             }
             false
         })
@@ -153,15 +153,15 @@ trait PodPos {
 
 impl PodPos for Pos {
     fn is_empty(&self, m: &State) -> bool {
-        m.get(*self).unwrap_or(Tile::Wall) == Tile::Empty
+        matches!(m.get(self), Some(Tile::Empty))
     }
 
     fn is_pod(&self, m: &State) -> bool {
-        matches!(m.get(*self).unwrap_or(Tile::Wall), Tile::Pod(_))
+        matches!(m.get(self), Some(Tile::Pod(_)))
     }
 
     fn get_byte(&self, m: &State) -> u8 {
-        m.get(*self).and_then(Tile::get_pod).unwrap()
+        m.get(self).and_then(Tile::get_pod).unwrap()
     }
 
     fn is_hallway(&self) -> bool {
