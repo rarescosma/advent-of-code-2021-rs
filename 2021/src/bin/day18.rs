@@ -44,18 +44,20 @@ impl<T> BTree<T> {
         }
     }
 
-    fn topo_ordering(&mut self) -> Vec<&mut T> {
-        let mut nodes: Vec<_> = Vec::with_capacity(128);
+    fn topo(&mut self) -> ArrayVec<&mut T, 64> {
+        let mut nodes = ArrayVec::new();
+        self._topo_rec(&mut nodes);
+        nodes
+    }
 
+    fn _topo_rec<'a, 'b>(&'a mut self, recv: &'b mut ArrayVec<&'a mut T, 64>) {
         match self {
-            Self::Leaf(t) => nodes.push(t),
+            Self::Leaf(t) => recv.push(t),
             Self::Branch { left, right } => {
-                nodes.extend(left.topo_ordering());
-                nodes.extend(right.topo_ordering());
+                left._topo_rec(recv);
+                right._topo_rec(recv);
             }
         }
-
-        nodes
     }
 
     fn get_leaf(&self) -> Option<&T> {
@@ -74,8 +76,8 @@ struct Node<T> {
 }
 
 impl<T> Node<T> {
-    fn new(t: T, depth: usize) -> Self {
-        Self { val: t, depth }
+    fn new(val: T, depth: usize) -> Self {
+        Self { val, depth }
     }
 
     fn deepen(self) -> Node<T> {
@@ -100,7 +102,7 @@ impl Node<isize> {
 const EXPLODE_DEPTH: usize = 4;
 impl BTree<Node<isize>> {
     fn explode(&mut self) -> bool {
-        let mut nodes = self.topo_ordering();
+        let mut nodes = self.topo();
 
         for i in 0..(nodes.len() - 1) {
             let p = nodes[i].val;
@@ -115,6 +117,7 @@ impl BTree<Node<isize>> {
                 nodes[i].val = TOMBSTONE;
                 nodes[i + 1].val = TOMBSTONE;
 
+                drop(nodes);
                 self.compact();
                 return true;
             }
@@ -123,10 +126,16 @@ impl BTree<Node<isize>> {
     }
 
     fn split(&mut self) -> bool {
-        for node in self.topo_ordering() {
+        let mut nodes = self.topo();
+        for node in &mut nodes {
             let val = node.val;
             if val >= 10 {
                 node.val = -val;
+
+                // ArrayVec implements Drop so we manually drop here instead
+                // of the end of the loop, so we can move `self` into `compact`
+                drop(nodes);
+
                 self.compact();
                 return true;
             }
