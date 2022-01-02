@@ -53,7 +53,8 @@ impl<T> Map<T> {
     where
         T: Copy,
     {
-        self.get(pos).unwrap()
+        let pos = pos.as_ref();
+        self.tiles[(pos.x + pos.y * self.size.x) as usize]
     }
 
     pub fn get_col(&self, col: i32) -> Option<Vec<T>>
@@ -70,6 +71,10 @@ impl<T> Map<T> {
         None
     }
 
+    pub fn get_tiles(&self) -> &Vec<T> {
+        &self.tiles
+    }
+
     pub fn set<P: AsRef<Pos>>(&mut self, pos: P, tile: T) {
         if let Some(index) = self.index(*pos.as_ref()) {
             self.tiles[index] = tile;
@@ -82,6 +87,15 @@ impl<T> Map<T> {
                 self.tiles.swap(i0, i1)
             }
         }
+    }
+
+    #[allow(clippy::ptr_arg)]
+    pub fn swap_vec(&mut self, new_tiles: &Vec<T>)
+    where
+        T: Copy,
+    {
+        assert_eq!(new_tiles.len(), (self.size.x * self.size.y) as usize);
+        self.tiles.clone_from(new_tiles);
     }
 
     pub fn iter(&self) -> impl Iterator<Item = Pos> + '_ {
