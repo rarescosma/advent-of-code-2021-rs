@@ -40,9 +40,9 @@ where
     /// Compute the least total cost for reaching a goal (as indicated by
     /// the `accept` method on the `GameState` implementor).
     fn dijsktra(self, context: &mut C) -> Option<usize> {
-        let mut known = hash::build_hashmap();
-
+        let mut known = hash::KeyMap::default();
         let mut pq = BinaryHeap::new();
+
         pq.push((Reverse(0), self));
 
         while let Some((Reverse(cost), state)) = pq.pop() {
@@ -53,7 +53,7 @@ where
                 let new_cost = cost + step.cost();
                 let new_state = step.transform(&state);
 
-                match known.entry(hash::manually_hash(&new_state)) {
+                match known.entry(&new_state) {
                     // Update if there's a less costly way to get to a known state...
                     Entry::Occupied(mut entry) if new_cost < *entry.get() => {
                         entry.insert(new_cost);
