@@ -1,3 +1,5 @@
+use mimalloc::MiMalloc;
+
 /// Macro for solution timing
 /// Credits: https://github.com/AxlLind/
 #[macro_export]
@@ -13,3 +15,6 @@ macro_rules! main {
     }
   }
 }
+
+#[global_allocator]
+static GLOBAL: MiMalloc = MiMalloc;
