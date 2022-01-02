@@ -26,47 +26,48 @@ impl Cuke {
 type CukeMap = Map<Cuke>;
 
 trait CukeSim {
-    fn has_neighbor(&self, p: Pos) -> bool;
     fn wrapping_add(&self, p: Pos, offset: Pos) -> Pos;
-    fn step_cukes(self, cuke: Cuke) -> (usize, Self);
-    fn step(self) -> (usize, Self);
+    fn step_cukes(&mut self, cuke: Cuke, buf: &mut Vec<Cuke>) -> usize;
+    fn step(&mut self, buf: &mut Vec<Cuke>) -> usize;
 }
 
 impl CukeSim for CukeMap {
-    fn has_neighbor(&self, p: Pos) -> bool {
-        let cuke = self.get_unchecked(p);
-        !self
-            .get_unchecked(self.wrapping_add(p, cuke.offset()))
-            .is_empty()
-    }
-
     fn wrapping_add(&self, p: Pos, offset: Pos) -> Pos {
-        let n = p + offset;
-        (n.x % self.size.x, n.y % self.size.y).into()
+        let mut n = p + offset;
+        if n.x == self.size.x {
+            n.x = 0;
+        }
+        if n.y == self.size.y {
+            n.y = 0;
+        }
+        n
     }
 
-    fn step_cukes(self, cuke: Cuke) -> (usize, Self) {
+    fn step_cukes(&mut self, cuke: Cuke, buf: &mut Vec<Cuke>) -> usize {
         let mut num_moves = 0;
-        let mut new_map = self.clone();
         let offset = cuke.offset();
-        self.iter()
-            .map(|p| (p, self.get_unchecked(p)))
-            .into_iter()
-            .for_each(|(p, c)| {
-                if cuke != c || self.has_neighbor(p) {
-                    return;
+
+        buf.clone_from(self.get_tiles());
+
+        for (idx, pos) in self.iter().enumerate() {
+            let c = self.get_unchecked(pos);
+            if c == cuke {
+                let n_pos = self.wrapping_add(pos, offset);
+                if self.get_unchecked(n_pos).is_empty() {
+                    buf.swap(idx, (n_pos.x + n_pos.y * self.size.x) as usize);
+                    num_moves += 1;
                 }
-                new_map.set(self.wrapping_add(p, offset), cuke);
-                new_map.set(p, Cuke::Empty);
-                num_moves += 1;
-            });
-        (num_moves, new_map)
+            }
+        }
+
+        self.swap_vec(buf);
+        num_moves
     }
 
-    fn step(self) -> (usize, Self) {
-        let (e_moves, map) = self.step_cukes(Cuke::East);
-        let (s_moves, map) = map.step_cukes(Cuke::South);
-        (e_moves + s_moves, map)
+    fn step(&mut self, buf: &mut Vec<Cuke>) -> usize {
+        let e_moves = self.step_cukes(Cuke::East, buf);
+        let s_moves = self.step_cukes(Cuke::South, buf);
+        e_moves + s_moves
     }
 }
 
@@ -75,8 +76,8 @@ impl FromStr for Cuke {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s {
-            "v" => Self::South,
             ">" => Self::East,
+            "v" => Self::South,
             _ => Self::Empty,
         })
     }
@@ -94,10 +95,10 @@ aoc_2021::main! {
     );
 
     let mut n_steps = 0;
+    let mut buf = Vec::<Cuke>::with_capacity((map.size.x * map.size.y) as usize);
 
     loop {
-        let (n_moves, new_map) = map.step();
-        map = new_map;
+        let n_moves = map.step(&mut buf);
         n_steps += 1;
         if n_moves == 0 {
             break;
