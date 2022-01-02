@@ -6,4 +6,6 @@ members = [
 ]
 
 [profile.release]
-lto = true
+lto = "fat"
+incremental = true
+debug = 1
