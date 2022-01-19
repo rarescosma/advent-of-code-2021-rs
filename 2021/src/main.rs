@@ -13,10 +13,13 @@ fn extract_time(s: &str) -> u32 {
 }
 
 fn main() {
+    let dot_dir = std::env::current_exe()
+        .map(|x| x.parent().unwrap().to_owned())
+        .expect("cannot get current exe");
+
     let total_time = (1..=25)
         .map(|day_num| {
-            let cmd = Command::new("cargo")
-                .args(&["run", "--release", "--bin", &format!("day{:0>2}", day_num)])
+            let cmd = Command::new(dot_dir.join(format!("day{:0>2}", day_num)))
                 .output()
                 .unwrap();
             let output = String::from_utf8(cmd.stdout).unwrap();
