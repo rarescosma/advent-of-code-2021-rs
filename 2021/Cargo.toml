@@ -10,7 +10,6 @@ aoc_2dmap = { path = "../crates/aoc_2dmap" }
 aoc_dijsktra = { path = "../crates/aoc_dijsktra" }
 aoc_prelude = { path = "../crates/aoc_prelude" }
 deku = "0.12.5"
-mimalloc = { version = "*", default-features = false }
 pest = "2.1.3"
 pest_derive = "2.1.0"
 regex = { version = "1.5", default-features = false, features = ["std", "unicode-perl"] }
