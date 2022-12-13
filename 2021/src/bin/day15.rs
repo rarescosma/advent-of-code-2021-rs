@@ -19,7 +19,7 @@ struct Move {
 impl GameState<ExtendingMap> for State {
     type Steps = ArrayVec<Move, 4>;
 
-    fn accept(&self) -> bool {
+    fn accept(&self, _cost: usize, _ctx: &mut ExtendingMap) -> bool {
         self.pos == self.goal
     }
 

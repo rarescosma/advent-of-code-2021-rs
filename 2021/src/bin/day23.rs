@@ -47,7 +47,7 @@ impl GameState<PodContext> for State {
     type Steps = ArrayVec<Move, 64>;
 
     /// True if all columns are solved
-    fn accept(&self) -> bool {
+    fn accept(&self, _cost: usize, _ctx: &mut PodContext) -> bool {
         (0..=3).all(|idx| {
             let c = (idx as u8) + b'A';
             if let Some(column) = self.get_col(room(c)) {
