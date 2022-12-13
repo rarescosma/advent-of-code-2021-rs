@@ -18,7 +18,7 @@ pub trait Transform<G> {
 pub trait GameState<C>: Ord + Hash {
     type Steps: IntoIterator;
 
-    fn accept(&self) -> bool;
+    fn accept(&self, cost: usize, ctx: &mut C) -> bool;
 
     fn steps(&self, ctx: &mut C) -> Self::Steps;
 }
@@ -46,7 +46,7 @@ where
         pq.push((Reverse(0), self));
 
         while let Some((Reverse(cost), state)) = pq.pop() {
-            if state.accept() {
+            if state.accept(cost, context) {
                 return Some(cost);
             }
             for step in state.steps(context) {
