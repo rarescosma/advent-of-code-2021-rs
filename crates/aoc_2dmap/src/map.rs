@@ -58,6 +58,11 @@ impl<T> Map<T> {
         self.tiles[(pos.x + pos.y * self.size.x) as usize].clone()
     }
 
+    pub fn get_unchecked_mut_ref<P: AsRef<Pos>>(&mut self, pos: P) -> &mut T {
+        let pos = pos.as_ref();
+        &mut self.tiles[(pos.x + pos.y * self.size.x) as usize]
+    }
+
     pub fn get_col(&self, col: i32) -> Option<Vec<T>>
     where
         T: Clone,
