@@ -5,6 +5,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-ahash = "0.7.6"
-hashbrown = "0.11.2"
-lazy_static = "1.4.0"
+ahash.workspace = true
+hashbrown.workspace = true
+lazy_static.workspace = true
