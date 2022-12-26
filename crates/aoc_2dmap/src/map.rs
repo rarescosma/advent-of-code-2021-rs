@@ -44,22 +44,23 @@ impl<T> Map<T> {
 
     pub fn get<P: AsRef<Pos>>(&self, pos: P) -> Option<T>
     where
-        T: Copy,
+        T: Clone,
     {
-        self.index(*pos.as_ref()).map(|index| self.tiles[index])
+        self.index(*pos.as_ref())
+            .map(|index| self.tiles[index].clone())
     }
 
     pub fn get_unchecked<P: AsRef<Pos>>(&self, pos: P) -> T
     where
-        T: Copy,
+        T: Clone,
     {
         let pos = pos.as_ref();
-        self.tiles[(pos.x + pos.y * self.size.x) as usize]
+        self.tiles[(pos.x + pos.y * self.size.x) as usize].clone()
     }
 
     pub fn get_col(&self, col: i32) -> Option<Vec<T>>
     where
-        T: Copy,
+        T: Clone,
     {
         if (0..self.size.x).contains(&col) {
             return Some(
@@ -111,7 +112,7 @@ impl<T> Map<T> {
     }
 }
 
-impl<T: Display + Copy> Display for Map<T> {
+impl<T: Display + Clone> Display for Map<T> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut row = -1;
         for pos in self.iter() {
