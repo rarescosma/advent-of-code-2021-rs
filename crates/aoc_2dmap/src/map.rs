@@ -56,6 +56,10 @@ impl<T> Map<T> {
             .map(|index| self.tiles[index].clone())
     }
 
+    pub fn get_ref<P: AsRef<Pos>>(&self, pos: P) -> Option<&T> {
+        self.index(*pos.as_ref()).map(|index| &self.tiles[index])
+    }
+
     pub fn get_unchecked<P: AsRef<Pos>>(&self, pos: P) -> T
     where
         T: Clone,
