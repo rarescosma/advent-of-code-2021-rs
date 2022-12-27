@@ -37,9 +37,15 @@ impl<T> Map<T> {
 
     pub fn fill_default<S: Into<MapSize>>(size: S) -> Self
     where
-        T: Clone + Default,
+        T: Default,
     {
-        Self::fill(size, T::default())
+        let size = size.into();
+        let num_tiles = size.x as usize * size.y as usize;
+        let mut tiles = Vec::<T>::with_capacity(num_tiles);
+        for _ in 0..num_tiles {
+            tiles.push(T::default());
+        }
+        Self { size, tiles }
     }
 
     pub fn get<P: AsRef<Pos>>(&self, pos: P) -> Option<T>
