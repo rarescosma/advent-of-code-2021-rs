@@ -1,5 +1,5 @@
 use std::iter::once;
-use std::ops::Add;
+use std::ops::{Add, AddAssign};
 
 use num_traits::PrimInt;
 
@@ -42,6 +42,12 @@ impl Add for Pos {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
         }
+    }
+}
+
+impl AddAssign for Pos {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = *self + rhs;
     }
 }
 
