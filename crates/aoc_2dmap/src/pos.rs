@@ -73,6 +73,10 @@ impl Pos {
         .into_iter()
     }
 
+    pub fn neighbors_simple_inclusive(self) -> impl Iterator<Item = Pos> {
+        self.neighbors_simple().chain(once(self))
+    }
+
     pub fn neighbors_diag(self) -> impl Iterator<Item = Pos> {
         self.neighbors_simple().chain([
             Pos::new(self.x + 1, self.y + 1),
