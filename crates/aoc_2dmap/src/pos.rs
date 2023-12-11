@@ -1,5 +1,5 @@
 use std::iter::once;
-use std::ops::{Add, AddAssign};
+use std::ops::{Add, AddAssign, Sub};
 
 use num_traits::PrimInt;
 
@@ -41,6 +41,17 @@ impl Add for Pos {
         Pos {
             x: self.x + rhs.x,
             y: self.y + rhs.y,
+        }
+    }
+}
+
+impl Sub for Pos {
+    type Output = Pos;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Pos {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
         }
     }
 }
