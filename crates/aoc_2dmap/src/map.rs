@@ -78,18 +78,18 @@ impl<T> Map<T> {
         &mut self.tiles[(pos.x + pos.y * self.size.x) as usize]
     }
 
-    pub fn get_col(&self, col: i32) -> Option<Vec<T>>
+    pub fn get_row(&self, row: i32) -> impl Iterator<Item = T> + '_
     where
         T: Clone,
     {
-        if (0..self.size.x).contains(&col) {
-            return Some(
-                (0..self.size.y)
-                    .flat_map(|y| self.get(Pos::from((col, y))))
-                    .collect(),
-            );
-        }
-        None
+        (0..self.size.x).map(move |x| self.get_unchecked(Pos::from((x, row))))
+    }
+
+    pub fn get_col(&self, col: i32) -> impl Iterator<Item = T> + '_
+    where
+        T: Clone,
+    {
+        (0..self.size.y).map(move |y| self.get_unchecked(Pos::from((col, y))))
     }
 
     pub fn get_tiles(&self) -> &Vec<T> {
