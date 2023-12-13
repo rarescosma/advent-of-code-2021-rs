@@ -50,10 +50,12 @@ impl GameState<PodContext> for State {
     fn accept(&self, _cost: usize, _ctx: &mut PodContext) -> bool {
         (0..=3).all(|idx| {
             let c = (idx as u8) + b'A';
-            if let Some(column) = self.get_col(room(c)) {
-                return column[1..].iter().all(|&t| t == Tile::Pod(c));
+            let c_num = room(c);
+            if c_num >= self.size.x {
+                false
+            } else {
+                self.get_col(c_num).skip(1).all(|t| t == Tile::Pod(c))
             }
-            false
         })
     }
 
@@ -105,10 +107,12 @@ impl Move {
 
         if self.from.is_room() && self.to.is_hallway() {
             // can only move out of our own room if any of the underlings are wrong
-            if self.from.x == room(c) {
-                if let Some(column) = m.get_col(self.from.x) {
-                    return ((self.from.y as _)..column.len()).any(|y| column[y] != Tile::Pod(c));
-                }
+            let c_num = room(c);
+            if self.from.x == c_num && c_num < m.size.x {
+                return m
+                    .get_col(c_num)
+                    .skip(self.from.y as usize - 1)
+                    .any(|y| y != Tile::Pod(c));
             }
             return true;
         }
@@ -129,16 +133,19 @@ impl Move {
             return false;
         }
 
-        if let Some(column) = m.get_col(self.to.x) {
-            return if (self.to.y as usize) < column.len() - 1 {
+        if self.to.x >= m.size.x {
+            false
+        } else {
+            let column = m.get_col(self.to.x).collect::<Vec<_>>();
+
+            if (self.to.y as usize) < column.len() - 1 {
                 // trying to move into non-empty room, check for aliens
                 ((self.to.y + 1) as usize..column.len()).all(|y| column[y] == Tile::Pod(c))
             } else {
                 // trying to move to bottom of room, check if empty
                 *column.last().unwrap() == Tile::Empty
-            };
+            }
         }
-        false
     }
 }
 
@@ -184,7 +191,7 @@ fn room(pod: u8) -> i32 {
 }
 
 /// Generate all visible positions from the starting position
-fn visible(m: &State, start_pos: Pos, ctx: &mut PodContext) -> impl Iterator<Item = (Pos, usize)> {
+fn visible(m: &State, start_pos: Pos, ctx: &mut PodContext) -> Vec<(Pos, usize)> {
     ctx.clear();
 
     ctx.q.push_back((start_pos, 0));
@@ -198,7 +205,7 @@ fn visible(m: &State, start_pos: Pos, ctx: &mut PodContext) -> impl Iterator<Ite
             }
         }
     }
-    ctx.vis.to_owned().into_iter()
+    ctx.vis.to_owned()
 }
 
 fn solve(input: Vec<&str>) -> usize {
