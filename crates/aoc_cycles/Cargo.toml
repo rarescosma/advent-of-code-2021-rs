@@ -1,0 +1,11 @@
+[package]
+name = "aoc_cycles"
+authors = ["Rareș Cosma <rares@getbetter.ro>"]
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ahash.workspace = true
+hashbrown.workspace = true
+lazy_static.workspace = true
+aoc_dijsktra = { path = "../aoc_dijsktra" }
