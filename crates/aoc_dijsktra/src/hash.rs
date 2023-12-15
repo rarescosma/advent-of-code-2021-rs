@@ -33,7 +33,7 @@ impl Default for KeyMap {
     }
 }
 
-fn manually_hash<H: Hash>(state: &H) -> u64 {
+pub fn manually_hash<H: Hash>(state: &H) -> u64 {
     let mut hasher = HASHER_BUILDER.build_hasher();
     state.hash(&mut hasher);
     hasher.finish()

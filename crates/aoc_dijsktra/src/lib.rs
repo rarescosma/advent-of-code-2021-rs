@@ -6,6 +6,8 @@ use hashbrown::hash_map::Entry;
 
 mod hash;
 
+pub use crate::hash::manually_hash;
+
 /// Transform one game state into another incurring a cost.
 pub trait Transform<G> {
     fn cost(&self) -> usize;
