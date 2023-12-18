@@ -10,8 +10,15 @@ pub struct Pos {
 }
 
 impl Pos {
-    fn new(x: i32, y: i32) -> Self {
-        Self { x, y }
+    pub fn new<X: PrimInt, Y: PrimInt>(x: X, y: Y) -> Self {
+        Self::from((x, y))
+    }
+
+    pub fn signum(self) -> Self {
+        Pos {
+            x: self.x.signum(),
+            y: self.y.signum(),
+        }
     }
 }
 
@@ -45,6 +52,12 @@ impl Add for Pos {
     }
 }
 
+impl AddAssign for Pos {
+    fn add_assign(&mut self, rhs: Self) {
+        *self = *self + rhs;
+    }
+}
+
 impl Sub for Pos {
     type Output = Pos;
 
@@ -53,12 +66,6 @@ impl Sub for Pos {
             x: self.x - rhs.x,
             y: self.y - rhs.y,
         }
-    }
-}
-
-impl AddAssign for Pos {
-    fn add_assign(&mut self, rhs: Self) {
-        *self = *self + rhs;
     }
 }
 

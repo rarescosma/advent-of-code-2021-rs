@@ -82,14 +82,14 @@ impl<T> Map<T> {
     where
         T: Clone,
     {
-        (0..self.size.x).map(move |x| self.get_unchecked(Pos::from((x, row))))
+        (0..self.size.x).map(move |x| self.get_unchecked(Pos::new(x, row)))
     }
 
     pub fn get_col(&self, col: i32) -> impl Iterator<Item = T> + '_
     where
         T: Clone,
     {
-        (0..self.size.y).map(move |y| self.get_unchecked(Pos::from((col, y))))
+        (0..self.size.y).map(move |y| self.get_unchecked(Pos::new(col, y)))
     }
 
     pub fn get_tiles(&self) -> &Vec<T> {
