@@ -43,7 +43,7 @@ where
     /// the `accept` method on the `GameState` implementor).
     fn dijsktra(self, context: &mut C) -> Option<usize> {
         let mut known = hash::KeyMap::default();
-        let mut pq = BinaryHeap::new();
+        let mut pq = BinaryHeap::with_capacity(1024);
 
         pq.push((Reverse(0), self));
 
