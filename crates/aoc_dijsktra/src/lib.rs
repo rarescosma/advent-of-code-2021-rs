@@ -3,30 +3,31 @@ use std::collections::BinaryHeap;
 use std::hash::Hash;
 
 use hashbrown::hash_map::Entry;
+use num_traits::PrimInt;
 
 mod hash;
 
 pub use crate::hash::manually_hash;
 
 /// Transform one game state into another incurring a cost.
-pub trait Transform<G> {
-    fn cost(&self) -> usize;
+pub trait Transform<G, N: PrimInt = usize> {
+    fn cost(&self) -> N;
     fn transform(&self, game_state: &G) -> G;
 }
 
 /// Hash-able representation of the current game state.
 /// It generates `Transform`s through the `steps` method, which also gets
 /// convenience access to a context type.
-pub trait GameState<C>: Ord + Hash {
+pub trait GameState<C, N = usize>: Ord + Hash {
     type Steps: IntoIterator;
 
-    fn accept(&self, cost: usize, ctx: &mut C) -> bool;
+    fn accept(&self, cost: N, ctx: &mut C) -> bool;
 
     fn steps(&self, ctx: &mut C) -> Self::Steps;
 }
 
-pub trait Dijsktra<C>: private::Sealed<C> {
-    fn dijsktra(self, ctx: &mut C) -> Option<usize>;
+pub trait Dijsktra<C, N>: private::Sealed<C, N> {
+    fn dijsktra(self, ctx: &mut C) -> Option<N>;
 }
 
 /// `GameState` implementors who produce self-compatible `Transform`s (through
@@ -34,18 +35,19 @@ pub trait Dijsktra<C>: private::Sealed<C> {
 /// Dijkstra's shortest path algorithm.
 ///
 /// Batteries (priority queue optimization) included.
-impl<C, T> Dijsktra<C> for T
+impl<C, T, N> Dijsktra<C, N> for T
 where
-    T: GameState<C>,
-    <T::Steps as IntoIterator>::Item: Transform<T>,
+    N: PrimInt,
+    T: GameState<C, N>,
+    <T::Steps as IntoIterator>::Item: Transform<T, N>,
 {
     /// Compute the least total cost for reaching a goal (as indicated by
     /// the `accept` method on the `GameState` implementor).
-    fn dijsktra(self, context: &mut C) -> Option<usize> {
+    fn dijsktra(self, context: &mut C) -> Option<N> {
         let mut known = hash::KeyMap::default();
         let mut pq = BinaryHeap::with_capacity(1024);
 
-        pq.push((Reverse(0), self));
+        pq.push((Reverse(N::from(0).unwrap()), self));
 
         while let Some((Reverse(cost), state)) = pq.pop() {
             if state.accept(cost, context) {
@@ -76,14 +78,15 @@ where
 
 /// Prevent other crates from implementing the `Dijsktra` trait. 😈
 mod private {
-    use super::{GameState, Transform};
+    use super::{GameState, Transform, PrimInt};
 
-    pub trait Sealed<C> {}
+    pub trait Sealed<C, N> {}
 
-    impl<T, C> Sealed<C> for T
+    impl<T, C, N> Sealed<C, N> for T
     where
-        T: GameState<C>,
-        <T::Steps as IntoIterator>::Item: Transform<T>,
+        N: PrimInt,
+        T: GameState<C, N>,
+        <T::Steps as IntoIterator>::Item: Transform<T, N>,
     {
     }
 }
