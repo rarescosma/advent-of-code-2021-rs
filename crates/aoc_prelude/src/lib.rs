@@ -12,7 +12,9 @@ pub use lazy_static::lazy_static;
 pub use multimap::MultiMap;
 pub use num_iter::range_inclusive;
 pub use num_traits::{PrimInt, Signed};
-pub use pest::iterators::Pair;
+pub use num_bigint::BigInt;
+pub use num_integer;
+pub use pest::iterators::{Pair, Pairs};
 pub use pest::Parser;
 pub use pest_derive::Parser;
 
