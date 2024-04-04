@@ -10,22 +10,23 @@ use ahash::RandomState;
 use hashbrown::hash_map::Entry;
 use hashbrown::HashMap;
 use lazy_static::lazy_static;
+use num_traits::PrimInt;
 
 lazy_static! {
     static ref HASHER_BUILDER: RandomState = RandomState::new();
 }
 
-pub(crate) struct KeyMap {
-    hashmap: HashMap<u64, usize, MirrorHashBuilder>,
+pub(crate) struct KeyMap<N: PrimInt> {
+    hashmap: HashMap<u64, N, MirrorHashBuilder>,
 }
 
-impl KeyMap {
-    pub fn entry<H: Hash>(&mut self, k: &H) -> Entry<u64, usize, MirrorHashBuilder> {
+impl <N: PrimInt> KeyMap<N> {
+    pub fn entry<H: Hash>(&mut self, k: &H) -> Entry<u64, N, MirrorHashBuilder> {
         self.hashmap.entry(manually_hash(k))
     }
 }
 
-impl Default for KeyMap {
+impl <N: PrimInt> Default for KeyMap<N> {
     fn default() -> Self {
         Self {
             hashmap: HashMap::with_capacity_and_hasher(1024, MirrorHashBuilder::default()),
