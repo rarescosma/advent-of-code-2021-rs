@@ -19,7 +19,7 @@ struct Number {
 
 #[derive(Debug, PartialEq, Copy, Clone, DekuRead)]
 #[deku(endian = "big")]
-#[deku(type = "u8", bits = "1")]
+#[deku(id_type = "u8", bits = "1")]
 enum OpCount {
     #[deku(id = "0x00")]
     BitCount(#[deku(bits = "15")] u16),
