@@ -8,12 +8,14 @@ members = [
 [workspace.dependencies]
 ahash = "0.8.11"
 arrayvec = "0.7.4"
-deku = "0.16.0"
-hashbrown = "0.14.3"
+deku = "0.18.1"
+hashbrown = "0.15.0"
 hex = "0.4.3"
-itertools = "0.12.1"
+itertools = "0.13.0"
 lazy_static = "1.4.0"
 multimap = { version = "0.10.0", default-features = false }
+num-bigint = "0.4.6"
+num-integer = "0.1.46"
 num-iter = "0.1.44"
 num-traits = "0.2.18"
 pest = { version = "2.7.9", default-features = false }

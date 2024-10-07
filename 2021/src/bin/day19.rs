@@ -214,7 +214,7 @@ fn scanners() -> BTreeMap<usize, Scanner> {
     }
 
     let mut scanners = BTreeMap::<usize, Scanner>::new();
-    for (idx, pgroup) in &scan_points.into_iter().group_by(|(x, _)| *x) {
+    for (idx, pgroup) in &scan_points.into_iter().chunk_by(|(x, _)| *x) {
         let mut points: Vec<_> = pgroup.map(|(_, p)| p).collect();
 
         /*
