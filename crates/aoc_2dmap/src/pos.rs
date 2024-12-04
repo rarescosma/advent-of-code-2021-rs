@@ -96,6 +96,16 @@ impl Pos {
     pub fn neighbors_diag_inclusive(self) -> impl Iterator<Item = Pos> {
         self.neighbors_diag().chain(once(self))
     }
+
+    pub fn neighbors_only_diag(self) -> impl Iterator<Item = Pos> {
+        [
+            Pos::new(self.x + 1, self.y + 1),
+            Pos::new(self.x + 1, self.y - 1),
+            Pos::new(self.x - 1, self.y + 1),
+            Pos::new(self.x - 1, self.y - 1),
+        ]
+        .into_iter()
+    }
 }
 
 #[derive(Copy, Clone, Debug)]
