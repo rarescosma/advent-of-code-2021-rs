@@ -123,8 +123,12 @@ impl<T> Map<T> {
         (0..self.size.y).flat_map(move |y| (0..self.size.x).map(move |x| Pos { x, y }))
     }
 
+    pub fn within(&self, pos: Pos) -> bool {
+        (0..self.size.x).contains(&pos.x) && (0..self.size.y).contains(&pos.y)
+    }
+
     fn index(&self, pos: Pos) -> Option<usize> {
-        if (0..self.size.x).contains(&pos.x) && (0..self.size.y).contains(&pos.y) {
+        if self.within(pos) {
             Some((pos.x + pos.y * self.size.x) as _)
         } else {
             None
