@@ -84,6 +84,16 @@ impl Pos {
         .into_iter()
     }
 
+    pub fn neighbors_rdlu(self) -> impl Iterator<Item = Pos> {
+        [
+            Pos::new(self.x + 1, self.y),
+            Pos::new(self.x, self.y + 1),
+            Pos::new(self.x - 1, self.y),
+            Pos::new(self.x, self.y - 1),
+        ]
+        .into_iter()
+    }
+
     pub fn neighbors_simple_inclusive(self) -> impl Iterator<Item = Pos> {
         self.neighbors_simple().chain(once(self))
     }
