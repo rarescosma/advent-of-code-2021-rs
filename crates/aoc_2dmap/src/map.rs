@@ -120,7 +120,7 @@ impl<T> Map<T> {
     }
 
     pub fn iter(&self) -> impl Iterator<Item = Pos> + '_ {
-        (0..self.size.y).flat_map(move |y| (0..self.size.x).map(move |x| Pos { x, y }))
+        self.size.iter()
     }
 
     pub fn within(&self, pos: Pos) -> bool {

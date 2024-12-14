@@ -74,6 +74,10 @@ impl Sub for Pos {
 }
 
 impl Pos {
+    pub fn iter(&self) -> impl Iterator<Item = Pos> + '_ {
+        (0..self.y).flat_map(move |y| (0..self.x).map(move |x| Pos { x, y }))
+    }
+
     pub fn neighbors_simple(self) -> impl Iterator<Item = Pos> {
         [
             Pos::new(self.x + 1, self.y),
