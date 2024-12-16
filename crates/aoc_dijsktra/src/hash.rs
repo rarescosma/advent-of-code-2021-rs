@@ -34,9 +34,7 @@ impl<N: PrimInt> Default for KeyMap<N> {
 }
 
 pub fn manually_hash<H: Hash>(state: &H) -> u64 {
-    let mut hasher = HASHER_BUILDER.build_hasher();
-    state.hash(&mut hasher);
-    hasher.finish()
+    HASHER_BUILDER.hash_one(state)
 }
 
 #[derive(Default)]
