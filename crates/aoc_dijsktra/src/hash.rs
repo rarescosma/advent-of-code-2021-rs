@@ -3,8 +3,7 @@
 /// instead which uses `manually_hash`, then inserts the resulting hash
 /// in a regular hash table set up to use a `MirrorHasher` which simply
 /// mirrors back the `u64` produced by `manually_hash`.
-use std::hash::{BuildHasher, BuildHasherDefault};
-use std::hash::{Hash, Hasher};
+use std::hash::{BuildHasherDefault, Hash, Hasher};
 
 use ahash::RandomState;
 use hashbrown::hash_map::Entry;
@@ -20,13 +19,13 @@ pub(crate) struct KeyMap<N: PrimInt> {
     hashmap: HashMap<u64, N, MirrorHashBuilder>,
 }
 
-impl <N: PrimInt> KeyMap<N> {
+impl<N: PrimInt> KeyMap<N> {
     pub fn entry<H: Hash>(&mut self, k: &H) -> Entry<u64, N, MirrorHashBuilder> {
         self.hashmap.entry(manually_hash(k))
     }
 }
 
-impl <N: PrimInt> Default for KeyMap<N> {
+impl<N: PrimInt> Default for KeyMap<N> {
     fn default() -> Self {
         Self {
             hashmap: HashMap::with_capacity_and_hasher(1024, MirrorHashBuilder::default()),
@@ -53,7 +52,7 @@ impl Hasher for MirrorHasher {
     }
 
     fn write(&mut self, bytes: &[u8]) {
-        let (int_bytes, _) = bytes.split_at(std::mem::size_of::<u64>());
+        let (int_bytes, _) = bytes.split_at(size_of::<u64>());
         self.state = u64::from_ne_bytes(int_bytes.try_into().unwrap());
     }
 }

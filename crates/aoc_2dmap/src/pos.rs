@@ -11,7 +11,7 @@ pub struct Pos {
 
 impl Pos {
     pub const fn c_new(x: i32, y: i32) -> Self {
-        Self {x, y}
+        Self { x, y }
     }
 
     pub fn new<X: PrimInt, Y: PrimInt>(x: X, y: Y) -> Self {

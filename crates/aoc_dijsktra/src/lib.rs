@@ -78,7 +78,7 @@ where
 
 /// Prevent other crates from implementing the `Dijsktra` trait. 😈
 mod private {
-    use super::{GameState, Transform, PrimInt};
+    use super::{GameState, PrimInt, Transform};
 
     pub trait Sealed<C, N> {}
 
