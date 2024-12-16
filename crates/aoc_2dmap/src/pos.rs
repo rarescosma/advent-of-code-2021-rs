@@ -119,6 +119,14 @@ impl Pos {
         ]
         .into_iter()
     }
+
+    pub fn clockwise(self) -> Self {
+        Self::new(-self.y, self.x)
+    }
+
+    pub fn anticlockwise(self) -> Self {
+        Self::new(self.y, -self.x)
+    }
 }
 
 pub const NORTH: Pos = Pos::c_new(0, -1);
