@@ -126,6 +126,12 @@ impl Pos {
     }
 }
 
+pub const NORTH: Pos = Pos::c_new(0, -1);
+pub const EAST: Pos = Pos::c_new(1, 0);
+pub const SOUTH: Pos = Pos::c_new(0, 1);
+pub const WEST: Pos = Pos::c_new(-1, 0);
+pub const ORTHOGONAL: [Pos; 4] = [NORTH, EAST, SOUTH, WEST];
+
 #[derive(Copy, Clone, Debug)]
 pub enum Axis {
     X,
