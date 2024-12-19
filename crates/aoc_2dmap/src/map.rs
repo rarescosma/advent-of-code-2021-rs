@@ -1,5 +1,6 @@
 use crate::pos::Pos;
 use std::fmt::{Display, Formatter};
+use std::ops::{Index, IndexMut};
 
 pub type MapSize = Pos;
 
@@ -133,6 +134,20 @@ impl<T> Map<T> {
         } else {
             None
         }
+    }
+}
+
+impl<T, P: AsRef<Pos>> Index<P> for Map<T> {
+    type Output = T;
+
+    fn index(&self, index: P) -> &Self::Output {
+        self.get_unchecked_ref(index)
+    }
+}
+
+impl<T, P: AsRef<Pos>> IndexMut<P> for Map<T> {
+    fn index_mut(&mut self, index: P) -> &mut Self::Output {
+        self.get_unchecked_mut_ref(index)
     }
 }
 
