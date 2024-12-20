@@ -54,7 +54,7 @@ impl OctoMap {
     fn step(&mut self) -> usize {
         let positions: Vec<_> = self.0.iter().collect();
         positions.iter().for_each(|pos| {
-            let new_tile = self.0.get_unchecked(pos).increment();
+            let new_tile = self.0[pos].increment();
             self.0.set(pos, new_tile);
         });
 

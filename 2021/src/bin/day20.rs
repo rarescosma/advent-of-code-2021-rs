@@ -24,7 +24,7 @@ impl EnhanceMap<char> {
             if pos.x == 0 || pos.y == 0 || pos.x == self.size.x + 1 || pos.y == self.size.y + 1 {
                 continue;
             }
-            new_map.set(pos, self.get_unchecked(pos + (-1, -1).into()));
+            new_map[pos] = self[pos + (-1, -1).into()];
         }
         std::mem::swap(&mut self.0, &mut new_map)
     }
@@ -41,13 +41,12 @@ impl EnhanceMap<char> {
             let mut algo_idx = 0_usize;
             for neigh in pos
                 .neighbors_diag_inclusive()
-                .into_iter()
                 .map(|x| self.get(x).unwrap_or(pad_char))
             {
                 algo_idx <<= 1;
                 algo_idx += (neigh == LIGHT) as usize
             }
-            out_map.set(pos, algo[algo_idx]);
+            out_map[pos] = algo[algo_idx];
         }
         std::mem::swap(&mut self.0, &mut out_map)
     }
@@ -63,7 +62,7 @@ impl EnhanceMap<char> {
 
 fn pixel_count(map: &EnhanceMap<char>) -> usize {
     map.iter()
-        .map(|x| map.get_unchecked(x))
+        .map(|pos| map[pos])
         .filter(|x| *x == LIGHT)
         .count()
 }

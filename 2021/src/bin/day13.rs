@@ -27,7 +27,7 @@ impl<T: Copy + Default> FoldingMap<T> {
                     y: self.0.size.y - pos.y - 1,
                 },
             };
-            flipped.set(flip_pos, self.0.get_unchecked(pos));
+            flipped.set(flip_pos, self.0[pos]);
         }
 
         FoldingMap(flipped)
@@ -39,7 +39,7 @@ impl<T: Copy + Default> FoldingMap<T> {
         let mut right = Map::<T>::fill_default(self.0.size + along.map(-at - 1, 0));
         for outer_coord in 0..size.x {
             for inner_coord in 0..size.y {
-                let tile = self.0.get_unchecked(along.map(outer_coord, inner_coord));
+                let tile = self.0[along.map(outer_coord, inner_coord)];
 
                 if outer_coord < at {
                     left.set(along.map(outer_coord, inner_coord), tile);
@@ -55,7 +55,7 @@ impl<T: Copy + Default> FoldingMap<T> {
     fn extend_front(self, along: Axis, by: i32) -> Self {
         let mut extended = Map::<T>::fill_default(self.0.size + along.map(by, 0));
         for pos in self.0.iter() {
-            let tile = self.0.get_unchecked(pos);
+            let tile = self.0[pos];
             extended.set(pos + along.map(by, 0), tile);
         }
         Self(extended)
@@ -81,10 +81,7 @@ impl<T: Copy + Default> FoldingMap<T> {
         let mut folded = Map::<T>::fill_default(right.0.size);
 
         for pos in right.0.iter() {
-            folded.set(
-                pos,
-                f(right.0.get_unchecked(pos), left.0.get_unchecked(pos)),
-            );
+            folded.set(pos, f(right.0[pos], left.0[pos]));
         }
         self.0 = folded;
     }

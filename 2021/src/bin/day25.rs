@@ -50,10 +50,10 @@ impl CukeSim for CukeMap {
         buf.clone_from(self.get_tiles());
 
         for (idx, pos) in self.iter().enumerate() {
-            let c = self.get_unchecked(pos);
+            let c = self[pos];
             if c == cuke {
                 let n_pos = self.wrapping_add(pos, offset);
-                if self.get_unchecked(n_pos).is_empty() {
+                if self[n_pos].is_empty() {
                     buf.swap(idx, (n_pos.x + n_pos.y * self.size.x) as usize);
                     num_moves += 1;
                 }
